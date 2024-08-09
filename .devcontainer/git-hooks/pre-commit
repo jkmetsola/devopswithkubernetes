@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+
+WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
+
+source "${WORKSPACE_FOLDER}"/.devcontainer/setupEnv.sh "false"
+git diff-index --check --cached HEAD --
+git diff-index --cached --name-only --diff-filter d HEAD -- | xargs --no-run-if-empty "${WORKSPACE_FOLDER}"/.devcontainer/shellTools/checkLineFeed.sh
+ruff check --exclude .vscode-server
+ruff format --exclude .vscode-server --diff
+echo "$(find . -type f -name '*.sh') ${WORKSPACE_FOLDER}/.devcontainer/git-hooks/pre-commit" | xargs shellcheck
+hadolint Dockerfile
+actionlint -ignore 'workflow is empty'

@@ -1,0 +1,5 @@
+docker.io=20.10.24+dfsg1-1+b3
+vim=2:9.0.1378-2
+less=590-2.1~deb12u2
+man-db=2.11.2-2
+sudo=1.9.13p3-1+deb12u1

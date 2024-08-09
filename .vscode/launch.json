@@ -1,0 +1,80 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "pytest-tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "hsl-api"
+            ]
+        },
+        {
+            "name": "robot-tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "robot",
+            "args": [
+                "--variablefile",
+                "hsl-api/tests/init_vars.py",
+                "--pythonpath",
+                "hsl-api/tests/robot/libraries",
+                "--loglevel",
+                "TRACE",
+                "hsl-api/tests/robot/test_stops.robot"
+            ]
+        },
+        {
+            "name": "dev only: robot-tests-lsp-protocol",
+            "type": "robotframework-lsp",
+            "request": "launch",
+            "args": [
+                "--variablefile",
+                "hsl-api/tests/init_vars.py",
+                "--pythonpath",
+                "hsl-api/tests/robot/libraries",
+                "--loglevel",
+                "TRACE"
+            ],
+            "target": "hsl-api/tests/robot/test_stops.robot"
+        },
+        {
+            "name": "dev only: pytest via launcher wrapper",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "pytest-tests"
+            ],
+            "program": "execute_tests.py"
+        },
+        {
+            "name": "dev only: robot via launcher wrapper",
+            "type": "debugpy",
+            "request": "launch",
+            "args": [
+                "robot-tests"
+            ],
+            "program": "execute_tests.py"
+        },
+        {
+            "name": "Configure Devcontainer",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/.devcontainer/configure_devcontainer_json.py",
+            "args": [
+                "--host-docker-gid",
+                "1000",
+                "--host-uid",
+                "1001",
+                "--host-gid",
+                "1002",
+                "--build-arg-output-file",
+                "${workspaceFolder}/build_args.txt",
+                "--build-env-output-file",
+                "${workspaceFolder}/build_env.txt"
+            ],
+            "console": "integratedTerminal"
+        }
+    ]
+}

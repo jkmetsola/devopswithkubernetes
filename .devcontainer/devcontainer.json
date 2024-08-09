@@ -1,0 +1,51 @@
+{
+    "name": "Dev Environment",
+    "build": {
+        "dockerfile": "${localWorkspaceFolder}/Dockerfile",
+        "context": "${localWorkspaceFolder}",
+        "args": {
+            "HOST_DOCKER_GID": "999",
+            "HOST_UID": "1000",
+            "HOST_GID": "1003",
+            "PACKAGES_DEVENV_FILENAME": "packages-devenv.txt",
+            "PACKAGES_DEVLINT_FILENAME": "packages-devlint.txt",
+            "IMAGEFILES_DIR": "imagefiles",
+            "BASE_IMAGE": "python:3.11.9-bookworm"
+        }
+    },
+    "workspaceFolder": "/dev-env/${localWorkspaceFolderBasename}",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/dev-env/${localWorkspaceFolderBasename},type=bind",
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+        "source=/home/${localEnv:USER}/.ssh,target=/home/devroot/.ssh,type=bind"
+    ],
+    "updateRemoteUserUID": false,
+    "remoteUser": "devroot",
+    "initializeCommand": "${localWorkspaceFolder}/.devcontainer/init/initscript.sh ${localWorkspaceFolder}",
+    "containerUser": "devroot",
+    "onCreateCommand": "./.devcontainer/customize-dev-env.sh",
+    "postAttachCommand": "./.devcontainer/postAttach.sh",
+    "customizations": {
+        "notInUseExtensions": [
+            "ms-kubernetes-tools.vscode-kubernetes-tools",
+            "NicolasVuillamy.vscode-groovy-lint",
+            "SonarSource.sonarlint-vscode"
+        ],
+        "vscode": {
+            "extensions": [
+                "charliermarsh.ruff",
+                "christian-kohler.path-intellisense",
+                "codezombiech.gitignore",
+                "eamodio.gitlens",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "timonwong.shellcheck",
+                "exiasr.hadolint",
+                "ms-azuretools.vscode-docker",
+                "redhat.vscode-yaml",
+                "GitHub.copilot",
+                "GitHub.copilot-chat"
+            ]
+        }
+    }
+}
