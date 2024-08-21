@@ -72,7 +72,9 @@
                 "--build-arg-output-file",
                 "${workspaceFolder}/build_args.txt",
                 "--build-env-output-file",
-                "${workspaceFolder}/build_env.txt"
+                "${workspaceFolder}/build_env.txt",
+                "--modify-devcontainer-json",
+                "false"
             ],
             "console": "integratedTerminal"
         }

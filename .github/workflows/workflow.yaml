@@ -88,4 +88,4 @@
 #           diff --brief <(grep -v '#' requirements.txt) <(grep -v '#' requirements_new.txt)
 #       - run: |
 #           pip-compile -o requirements-dev_new.txt requirements-dev.in > /dev/null 2>&1
-#           diff --brief <(grep -v '#' requirements-dev.txt) <(grep -v '#' requirements-dev_new.txt)
+#           diff --brief <(grep -v '#' requirements------dev.txt) <(grep -v '#' requirements-dev_new.txt)
