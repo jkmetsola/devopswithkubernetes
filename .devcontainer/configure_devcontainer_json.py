@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Simple script to update the devcontainer.json file."""
+"""Simple script to update the devcontainer json file."""
 
 import argparse
 import json
@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 class ConfiguredevEnv:
-    """Tool to update the devcontainer.json file."""
+    """Tool to update the devcontainer json file."""
 
     def __init__(self) -> None:
-        """Get data from devcontainer.json file."""
+        """Get data from devcontainer json file."""
         self.devcontainer_json_path = Path.joinpath(
             Path(__file__).parent,
             "devcontainer.json",
@@ -37,7 +37,7 @@ class ConfiguredevEnv:
     def parse_args() -> argparse.Namespace:
         """Parse args from the command line."""
         parser = argparse.ArgumentParser(
-            description="Update the devcontainer.json file.",
+            description="Update the devcontainer json file.",
         )
 
         parser.add_argument("--host-docker-gid", type=int, help="Host Docker Group ID")
@@ -59,7 +59,7 @@ class ConfiguredevEnv:
         host_uid: str,
         host_gid: str,
     ) -> None:
-        """Update the devcontainer.json file."""
+        """Update the devcontainer json file."""
         self.devcontainer_json_data["build"]["args"]["HOST_DOCKER_GID"] = (
             host_docker_gid
         )
@@ -71,7 +71,8 @@ class ConfiguredevEnv:
 
         if self.devcontainer_json_data != self.devcontainer_json_data_copy:
             logger.warning(
-                ".devcontainer/devcontainer.json updated. Restart the container.",
+                "%s updated. Restart the container.",
+                self.devcontainer_json_path,
             )
             sys.exit(1)
 

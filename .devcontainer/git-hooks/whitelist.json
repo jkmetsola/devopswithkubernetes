@@ -1,0 +1,15 @@
+{
+    "7623c3b82900354b39c4428c5814b3e52f0b2aa3": [
+        "configure_devcontainer_json.py",
+        "devcontainer.json",
+        "launch.json",
+        "configureDotEnv.sh",
+        "setupEnv.sh",
+        "workflow.yaml"
+    ],
+    "permanent": [
+        "__init__.py",
+        "Dockerfile",
+        ".shellcheckrc"
+    ]
+}

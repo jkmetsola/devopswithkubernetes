@@ -9,8 +9,11 @@
             "HOST_GID": "1003",
             "PACKAGES_DEVENV_FILENAME": "packages-devenv.txt",
             "PACKAGES_DEVLINT_FILENAME": "packages-devlint.txt",
+            "REPOS_DEVENV_FILENAME": "repos-devenv.sh",
             "IMAGEFILES_DIR": "imagefiles",
-            "BASE_IMAGE": "python:3.11.9-bookworm"
+            "BASE_IMAGE": "python:3.11.9-bookworm",
+            "DEVUSER": "devroot",
+            "CONFIGURE_DEVUSER_FILENAME": "configure-devuser.sh"
         }
     },
     "workspaceFolder": "/dev-env/${localWorkspaceFolderBasename}",
@@ -21,7 +24,7 @@
     ],
     "updateRemoteUserUID": false,
     "remoteUser": "devroot",
-    "initializeCommand": "${localWorkspaceFolder}/.devcontainer/init/initscript.sh ${localWorkspaceFolder}",
+    "initializeCommand": "${localWorkspaceFolder}/.devcontainer/init/initscript.sh",
     "containerUser": "devroot",
     "onCreateCommand": "./.devcontainer/customize-dev-env.sh",
     "postAttachCommand": "./.devcontainer/postAttach.sh",
@@ -44,8 +47,12 @@
                 "ms-azuretools.vscode-docker",
                 "redhat.vscode-yaml",
                 "GitHub.copilot",
-                "GitHub.copilot-chat"
+                "GitHub.copilot-chat",
+                "ms-kubernetes-tools.vscode-kubernetes-tools"
             ]
         }
-    }
+    },
+    "runArgs": [
+        "--add-host=host.docker.internal:host-gateway"
+    ]
 }
