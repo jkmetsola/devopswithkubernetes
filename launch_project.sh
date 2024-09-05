@@ -8,4 +8,7 @@ KUBE_API_ADDRESS="$(kubectl config view -o jsonpath='{.clusters[?(@.name=="k3d-k
 PORT=$(echo "$KUBE_API_ADDRESS" | awk -F: '{print $NF}')
 kubectl config set clusters.k3d-k3s-default.server https://host.docker.internal:"$PORT"
 kubectl cluster-info
-kubectl create deployment hashgenerator-dep --image=jakousa/dwk-app1
+
+docker build -f "excercise101/Dockerfile" -t excercise101:latest "excercise101"
+k3d image import excercise101:latest
+kubectl apply -f excercise101/deployment.yaml
