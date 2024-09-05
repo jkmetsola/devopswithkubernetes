@@ -1,10 +1,11 @@
 {
-    "d6e10c71d2d7e3798a06dc8f50eb63034854c60d": [
-        "launch_test_part1.sh"
+    "569149d6991c29c4522916a431079c429ba6fa84": [
+        "launch_project.sh"
     ],
     "permanent": [
         "__init__.py",
         "Dockerfile",
-        ".shellcheckrc"
+        ".shellcheckrc",
+        "launch_project.sh"
     ]
 }
