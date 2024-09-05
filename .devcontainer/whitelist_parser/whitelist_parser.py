@@ -28,17 +28,27 @@ class WhiteListFileParser:
     """
 
     def __init__(self, whitelistfile: str, previous_commit_sha: str) -> None:
-        """Read the whitelist file."""
+        """Read the whitelist file and validate it."""
         with Path(whitelistfile).open("r", encoding="utf-8") as file:
-            data = json.load(file)
+            self.data = json.load(file)
             self.whitelisted_files = (
-                data.get(previous_commit_sha, []) + data["permanent"]
+                self.data.get(previous_commit_sha, []) + self.data["permanent"]
             )
+        self.validate_whitelist_file()
 
     def exit_if_file_is_whitelisted(self, file: str) -> None:
         """Exit 1 if a file is not whitelisted."""
         if file not in self.whitelisted_files:
             logger.debug("File %s is not whitelisted.", file)
+            sys.exit(1)
+
+    def validate_whitelist_file(self) -> None:
+        """Validate the whitelist file."""
+        if len(self.data.keys()) > 2:  # noqa: PLR2004
+            logger.error("Whitelist file has more than two keys")
+            sys.exit(1)
+        if "permanent" not in self.data:
+            logger.error("'permanent' key not found in whitelist file")
             sys.exit(1)
 
     @staticmethod
