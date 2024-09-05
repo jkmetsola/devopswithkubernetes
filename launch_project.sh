@@ -12,3 +12,6 @@ kubectl cluster-info
 docker build -f "excercise101/Dockerfile" -t excercise101:latest "excercise101"
 k3d image import excercise101:latest
 kubectl apply -f excercise101/deployment.yaml
+
+docker build -f "excercise102/Dockerfile" -t excercise102:latest "excercise102"
+k3d image import excercise102:latest
