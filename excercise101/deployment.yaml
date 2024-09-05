@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: excercise101
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: excercise101
+  template:
+    metadata:
+      labels:
+        app: excercise101
+    spec:
+      containers:
+      - name: excercise101
+        image: excercise101:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"

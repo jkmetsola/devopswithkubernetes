@@ -1,14 +1,6 @@
 {
-    "8793920fea21042a4a78a607b7b47192d12b7277": [
+    "d6e10c71d2d7e3798a06dc8f50eb63034854c60d": [
         "launch_test_part1.sh"
-    ],
-    "7623c3b82900354b39c4428c5814b3e52f0b2aa3": [
-        "configure_devcontainer_json.py",
-        "devcontainer.json",
-        "launch.json",
-        "configureDotEnv.sh",
-        "setupEnv.sh",
-        "workflow.yaml"
     ],
     "permanent": [
         "__init__.py",
