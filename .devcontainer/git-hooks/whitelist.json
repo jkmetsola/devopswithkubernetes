@@ -1,6 +1,6 @@
 {
-    "569149d6991c29c4522916a431079c429ba6fa84": [
-        "launch_project.sh"
+    "10fd0176b1469442ba406c6fb938f1768b085ef5": [
+        "deployment.yaml"
     ],
     "permanent": [
         "__init__.py",
