@@ -3,7 +3,7 @@
 set -euo pipefail
 
 RANDOM_STRING_APP=excercise101
-SIMPLE_WEB_SERVER_APP=excercise102
+SIMPLE_WEB_SERVER_APP=simple-server
 
 create_cluster() {
     k3d cluster delete
@@ -20,20 +20,21 @@ get_pod_name() {
 
 deploy_apps() {
     for APP in "$@"; do
-        docker build -f ${APP}/Dockerfile -t ${APP}:latest ${APP}
-        k3d image import ${APP}:latest
-        kubectl apply -f ${APP}/manifests/deployment.yaml
+        docker build -f "${APP}"/Dockerfile -t "${APP}":latest "${APP}"
+        k3d image import "${APP}":latest
+        kubectl apply -f "${APP}"/manifests/deployment.yaml
     done
 }
 
 wait_apps() {
     for APP in "$@"; do
-        pod_name="$(get_pod_name ${APP})"
-        kubectl wait --for=condition=Ready --timeout=30s pod/${pod_name}
-        kubectl logs ${pod_name}
+        pod_name="$(get_pod_name "${APP}")"
+        kubectl wait --for=condition=Ready --timeout=30s pod/"${pod_name}"
+        kubectl logs "${pod_name}"
     done
 }
 
 create_cluster
 deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
 wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
+kubectl port-forward "$(get_pod_name ${SIMPLE_WEB_SERVER_APP})" 3000:3000

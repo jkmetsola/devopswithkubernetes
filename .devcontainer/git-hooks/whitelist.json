@@ -1,6 +1,8 @@
 {
-    "10fd0176b1469442ba406c6fb938f1768b085ef5": [
-        "deployment.yaml"
+    "31275561b15f9a739b4546b629d8d02e57d4be60": [
+        "deployment.yaml",
+        "simple_server.py",
+        "devcontainer.json"
     ],
     "permanent": [
         "__init__.py",

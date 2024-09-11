@@ -54,5 +54,8 @@
     },
     "runArgs": [
         "--add-host=host.docker.internal:host-gateway"
+    ],
+    "forwardPorts": [
+        3000
     ]
 }
