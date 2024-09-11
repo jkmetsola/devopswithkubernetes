@@ -1,20 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: excercise102
+  name: simple-server-dep
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: excercise102
+      app: simple-server
   template:
     metadata:
       labels:
-        app: excercise102
+        app: simple-server
     spec:
       containers:
-      - name: excercise102
-        image: excercise102:latest
+      - name: simple-server
+        image: simple-server:latest
+        env:
+        - name: PORT
+          value: "3000"
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -25,6 +28,6 @@ spec:
             memory: "256Mi"
         readinessProbe:
           tcpSocket:
-            port: 8000
-          initialDelaySeconds: 5
-          periodSeconds: 10
+            port: 3000
+          initialDelaySeconds: 2
+          periodSeconds: 2
