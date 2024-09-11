@@ -1,7 +1,6 @@
 {
-    "31275561b15f9a739b4546b629d8d02e57d4be60": [
-        "deployment.yaml",
-        "simple_server.py",
+    "a3cf31961b7f61334779bc524045d6f82105b19f": [
+        "bashrc-custompart",
         "devcontainer.json"
     ],
     "permanent": [
