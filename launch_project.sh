@@ -7,7 +7,11 @@ SIMPLE_WEB_SERVER_APP=simple-server
 
 create_cluster() {
     k3d cluster delete
-    k3d cluster create --host-alias 0.0.0.0:host.docker.internal -a 2 --k3s-arg "--tls-san=host.docker.internal@server:0"
+    k3d cluster create \
+        --host-alias 0.0.0.0:host.docker.internal \
+        --agents 2 \
+        --k3s-arg "--tls-san=host.docker.internal@server:0" \
+        --port 8082:30080@agent:0 -p 8081:80@loadbalancer
     KUBE_API_ADDRESS="$(kubectl config view -o jsonpath='{.clusters[?(@.name=="k3d-k3s-default")].cluster.server}')"
     PORT=$(echo "$KUBE_API_ADDRESS" | awk -F: '{print $NF}')
     kubectl config set clusters.k3d-k3s-default.server https://host.docker.internal:"$PORT"
@@ -26,6 +30,12 @@ deploy_apps() {
     done
 }
 
+configure_network_for_apps() {
+    for APP in "$@"; do
+        kubectl apply -f "${APP}"/manifests/service.yaml
+    done
+}
+
 wait_apps() {
     for APP in "$@"; do
         pod_name="$(get_pod_name "${APP}")"
@@ -37,4 +47,4 @@ wait_apps() {
 create_cluster
 deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
 wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
-kubectl port-forward "$(get_pod_name ${SIMPLE_WEB_SERVER_APP})" 3000:3000
+configure_network_for_apps $SIMPLE_WEB_SERVER_APP
