@@ -11,11 +11,10 @@ create_cluster() {
         --host-alias 0.0.0.0:host.docker.internal \
         --agents 2 \
         --k3s-arg "--tls-san=host.docker.internal@server:0" \
-        --port 8082:30080@agent:0 -p 8081:80@loadbalancer
+        --port 8081:80@loadbalancer
     KUBE_API_ADDRESS="$(kubectl config view -o jsonpath='{.clusters[?(@.name=="k3d-k3s-default")].cluster.server}')"
     PORT=$(echo "$KUBE_API_ADDRESS" | awk -F: '{print $NF}')
     kubectl config set clusters.k3d-k3s-default.server https://host.docker.internal:"$PORT"
-    kubectl cluster-info
 }
 
 get_pod_name() {
@@ -26,13 +25,7 @@ deploy_apps() {
     for APP in "$@"; do
         docker build -f "${APP}"/Dockerfile -t "${APP}":latest "${APP}"
         k3d image import "${APP}":latest
-        kubectl apply -f "${APP}"/manifests/deployment.yaml
-    done
-}
-
-configure_network_for_apps() {
-    for APP in "$@"; do
-        kubectl apply -f "${APP}"/manifests/service.yaml
+        kubectl apply -f "${APP}"/manifests/
     done
 }
 
@@ -47,4 +40,9 @@ wait_apps() {
 create_cluster
 deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
 wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
-configure_network_for_apps $SIMPLE_WEB_SERVER_APP
+kubectl cluster-info
+kubectl get svc,ing
+until curl --silent --fail host.docker.internal:8081; do
+  echo "Waiting host.docker.internal:8081"
+  sleep 5
+done

@@ -8,5 +8,7 @@
         "**/.git": true,
         "**/.ruff_cache": true
     },
-    "shellcheck.useWorkspaceRootAsCwd": true
+    "shellcheck.useWorkspaceRootAsCwd": true,
+    "remote.autoForwardPorts": false,
+    "remote.forwardOnOpen": false
 }
