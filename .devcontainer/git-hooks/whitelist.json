@@ -1,12 +1,6 @@
 {
-    "bc078b1762741d1e7d49a73d5206904b1fab90b8": [
-        "ingress.yaml",
-        "service.yaml",
-        "environment.py",
-        "simple_log_server.py",
-        "devcontainer.json",
-        "deployment.yaml",
-        "random_string_printer.py"
+    "ee23759fbabe85a2b07b1b74f64bbb5385f4e4a0": [
+        "service.yaml"
     ],
     "permanent": [
         "__init__.py",
