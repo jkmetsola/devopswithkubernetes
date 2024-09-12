@@ -15,6 +15,9 @@ spec:
       containers:
       - name: excercise101
         image: excercise101:latest
+        env:
+        - name: PORT
+          value: "3030"
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -23,3 +26,12 @@ spec:
           requests:
             cpu: "100m"
             memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3030
+            httpHeaders:
+            - name: Content-Type
+              value: text/plain
+          initialDelaySeconds: 2
+          periodSeconds: 1
