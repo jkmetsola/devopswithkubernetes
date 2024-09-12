@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: excercise101-ingress
+  name: simple-server-ingress
 spec:
   rules:
   - http:
@@ -10,6 +10,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: excercise101-svc
+            name: simple-server-svc
             port:
-              number: 101
+              number: 1234
