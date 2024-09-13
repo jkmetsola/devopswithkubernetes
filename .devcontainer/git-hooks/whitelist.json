@@ -1,6 +1,9 @@
 {
-    "ee23759fbabe85a2b07b1b74f64bbb5385f4e4a0": [
-        "service.yaml"
+    "c3ffe01de460e14ad2c62a870f740837a0baa433": [
+        "deployment.yaml",
+        "service.yaml",
+        "ingress.yaml",
+        "run.sh"
     ],
     "permanent": [
         "__init__.py",
