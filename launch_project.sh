@@ -4,6 +4,7 @@ set -euo pipefail
 
 RANDOM_STRING_APP=excercise101
 SIMPLE_WEB_SERVER_APP=simple-server
+PINGPONG_APP=pingpong
 
 create_cluster() {
     k3d cluster delete
@@ -38,11 +39,13 @@ wait_apps() {
 }
 
 create_cluster
-deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
-wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP
+deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP $PINGPONG_APP
+wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP $PINGPONG_APP
 kubectl cluster-info
 kubectl get svc,ing
-until curl --silent --fail host.docker.internal:8081; do
-  echo "Waiting host.docker.internal:8081"
-  sleep 5
+echo -n "Waiting that host.docker.internal:8081 can be reached"
+until curl --silent --fail -o "$(mktemp)" host.docker.internal:8081; do
+  echo -n "."
+  sleep 3
 done
+echo "OK"
