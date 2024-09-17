@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.randomLogServerAppName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.randomLogServerAppName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.randomLogServerAppName }}
+    spec:
+      containers:
+      - name: {{ .Values.randomLogServerAppName }}
+        image: "{{ .Values.randomLogServerAppName }}:latest"
+        env:
+        - &log_file_env
+          name: LOG_FILE
+          value: "{{ .Values.logFileMountPath }}/{{ .Values.logFileName }}"
+        - name: PORT
+          value: "{{ .Values.randomLogServerAppPort }}"
+        imagePullPolicy: IfNotPresent
+        resources: &resource_limits
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "100m"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.randomLogServerAppPort }}
+            httpHeaders:
+            - name: Content-Type
+              value: text/plain
+          initialDelaySeconds: 2
+          periodSeconds: 1
+        volumeMounts: &volume_mounts
+        - name: {{ .Values.logFileVolumeName }}
+          mountPath: {{ .Values.logFileMountPath }}
+      - name: {{ .Values.randomStringContainerName }}
+        image: "{{ .Values.randomStringContainerName }}:latest"
+        env:
+        - *log_file_env
+        imagePullPolicy: IfNotPresent
+        resources: *resource_limits
+        volumeMounts: *volume_mounts
+      volumes:
+      - name: {{ .Values.logFileVolumeName }}
+        emptyDir: {}

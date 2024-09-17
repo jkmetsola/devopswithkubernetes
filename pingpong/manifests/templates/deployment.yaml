@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pingpong-dep
+  name: "{{ .Values.pingPongAppName }}-dep"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: pingpong
+      app: {{ .Values.pingPongAppName }}
   template:
     metadata:
       labels:
-        app: pingpong
+        app: {{ .Values.pingPongAppName }}
     spec:
       containers:
-      - name: pingpong
-        image: pingpong:latest
+      - name: {{ .Values.pingPongAppName }}
+        image: "{{ .Values.pingPongAppName }}:latest"
         env:
         - name: PORT
-          value: "3040"
+          value: "{{ .Values.pingPongAppPort }}"
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -28,6 +28,6 @@ spec:
             memory: "256Mi"
         readinessProbe:
           tcpSocket:
-            port: 3040
+            port: {{ .Values.pingPongAppPort }}
           initialDelaySeconds: 2
           periodSeconds: 2

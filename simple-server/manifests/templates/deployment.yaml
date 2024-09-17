@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: simple-server-dep
+  name: "{{ .Values.simpleServerAppName }}-dep"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: simple-server
+      app: {{ .Values.simpleServerAppName }}
   template:
     metadata:
       labels:
-        app: simple-server
+        app: {{ .Values.simpleServerAppName }}
     spec:
       containers:
-      - name: simple-server
-        image: simple-server:latest
+      - name: {{ .Values.simpleServerAppName }}
+        image: "{{ .Values.simpleServerAppName }}:latest"
         env:
         - name: PORT
-          value: "3000"
+          value: "{{ .Values.simpleServerAppPort }}"
         imagePullPolicy: IfNotPresent
         resources:
           limits:
@@ -28,6 +28,6 @@ spec:
             memory: "256Mi"
         readinessProbe:
           tcpSocket:
-            port: 3000
+            port: {{ .Values.simpleServerAppPort }}
           initialDelaySeconds: 2
           periodSeconds: 2

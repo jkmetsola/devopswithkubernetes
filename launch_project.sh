@@ -2,9 +2,14 @@
 
 set -euo pipefail
 
-RANDOM_STRING_APP=excercise101
-SIMPLE_WEB_SERVER_APP=simple-server
-PINGPONG_APP=pingpong
+GLOBAL_VALUES_FILE="./global-values.yaml"
+
+SIMPLE_SERVER_APP="$(yq eval '.simpleServerAppName' ${GLOBAL_VALUES_FILE})"
+PINGPONG_APP="$(yq eval '.pingPongAppName' ${GLOBAL_VALUES_FILE})"
+LOG_SERVER_APP="$(yq eval '.randomLogServerAppName' ${GLOBAL_VALUES_FILE})"
+RANDOM_STRING_CONTAINER="$(yq eval '.randomStringContainerName' random-log-server/manifests/values.yaml)"
+POD_NAMES=("$LOG_SERVER_APP" "${SIMPLE_SERVER_APP}" "${PINGPONG_APP}")
+IMAGE_NAMES=("${POD_NAMES[@]}" "${RANDOM_STRING_CONTAINER}")
 
 create_cluster() {
     k3d cluster delete
@@ -22,30 +27,54 @@ get_pod_name() {
     kubectl get pods -l app="$1" -o jsonpath="{.items[0].metadata.name}"
 }
 
-deploy_apps() {
-    for APP in "$@"; do
-        docker build -f "${APP}"/Dockerfile -t "${APP}":latest "${APP}"
-        k3d image import "${APP}":latest
-        kubectl apply -f "${APP}"/manifests/
+build_image() {
+    if ! docker build -f "${1}"/Dockerfile --target "${1}" -t "${1}":latest "${1}";then
+        docker build -f "${1}"/Dockerfile -t "${1}":latest "${1}"
+    fi
+    k3d image import "${1}":latest
+}
+
+build_images() {
+    # Because there are 2 images in same pod, create temporary symlink to avoid creating different logic
+    ln -s "${LOG_SERVER_APP}" "${RANDOM_STRING_CONTAINER}"
+    trap 'rm -f ${RANDOM_STRING_CONTAINER}' EXIT
+    for image in "${IMAGE_NAMES[@]}"; do
+        build_image "$image"
+    done
+    rm -f "${RANDOM_STRING_CONTAINER}"
+}
+
+deploy_pods() {
+    for pod in "${POD_NAMES[@]}"; do
+        temp_production_yaml="$(mktemp --suffix .yaml)"
+        temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
+        helm template "${pod}" -f "${GLOBAL_VALUES_FILE}" ./"${pod}"/manifests > "${temp_production_yaml}"
+        yq eval 'explode(.)' "${temp_production_yaml}" > "${temp_resolved_production_yaml}"
+        kubectl apply -f "${temp_resolved_production_yaml}"
     done
 }
 
-wait_apps() {
-    for APP in "$@"; do
-        pod_name="$(get_pod_name "${APP}")"
+wait_pods() {
+    for pod in "${POD_NAMES[@]}"; do
+        pod_name="$(get_pod_name "${pod}")"
         kubectl wait --for=condition=Ready --timeout=30s pod/"${pod_name}"
         kubectl logs "${pod_name}"
     done
 }
 
+verify_lb_connectivity(){
+    echo -n "Waiting that host.docker.internal:8081 can be reached ..."
+    until curl --silent --fail -o "$(mktemp)" host.docker.internal:8081; do
+        echo -n "."
+        sleep 3
+    done
+    echo " OK"
+}
+
 create_cluster
-deploy_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP $PINGPONG_APP
-wait_apps $RANDOM_STRING_APP $SIMPLE_WEB_SERVER_APP $PINGPONG_APP
+build_images
+deploy_pods
+wait_pods
 kubectl cluster-info
 kubectl get svc,ing
-echo -n "Waiting that host.docker.internal:8081 can be reached"
-until curl --silent --fail -o "$(mktemp)" host.docker.internal:8081; do
-  echo -n "."
-  sleep 3
-done
-echo "OK"
+verify_lb_connectivity
