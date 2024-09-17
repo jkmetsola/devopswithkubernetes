@@ -1,0 +1,4 @@
+randomStringContainerName: random-string-printer
+logFileMountPath: /logfile
+logFileName: logfile.log
+logFileVolumeName: logfile-volume

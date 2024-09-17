@@ -1,14 +1,17 @@
 {
-    "c3ffe01de460e14ad2c62a870f740837a0baa433": [
+    "f1bc8c65c1efdbc3791e72ecd842b0380b59a768": [
+        "random_string_printer.py",
         "deployment.yaml",
         "service.yaml",
         "ingress.yaml",
-        "run.sh"
+        "run.sh",
+        "values.yaml"
     ],
     "permanent": [
         "__init__.py",
         "Dockerfile",
         ".shellcheckrc",
-        "launch_project.sh"
+        "launch_project.sh",
+        "Chart.yaml"
     ]
 }

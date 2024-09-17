@@ -1,1 +1,0 @@
-"""Launches the full application."""
