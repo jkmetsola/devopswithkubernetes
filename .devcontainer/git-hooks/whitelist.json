@@ -1,13 +1,15 @@
 {
-    "f1bc8c65c1efdbc3791e72ecd842b0380b59a768": [
-        "random_string_printer.py",
+    "d32679a2c88d16da4fe90ad54c8242b13d3cbf4d": [
+        "simple_server.py",
+        "run.sh"
+    ],
+    "permanent": [
+        "persistentVolume.yaml",
+        "persistentVolumeClaim.yaml",
+        "values.yaml",
         "deployment.yaml",
         "service.yaml",
         "ingress.yaml",
-        "run.sh",
-        "values.yaml"
-    ],
-    "permanent": [
         "__init__.py",
         "Dockerfile",
         ".shellcheckrc",

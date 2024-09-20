@@ -1,53 +1,67 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.randomLogServerAppName }}
+  name: "{{.Values.randomLogServerAppName}}-dep"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.randomLogServerAppName }}
+      app: {{.Values.randomLogServerAppName}}
   template:
     metadata:
       labels:
-        app: {{ .Values.randomLogServerAppName }}
+        app: {{.Values.randomLogServerAppName}}
     spec:
       containers:
-      - name: {{ .Values.randomLogServerAppName }}
-        image: "{{ .Values.randomLogServerAppName }}:latest"
-        env:
-        - &log_file_env
-          name: LOG_FILE
-          value: "{{ .Values.logFileMountPath }}/{{ .Values.logFileName }}"
-        - name: PORT
-          value: "{{ .Values.randomLogServerAppPort }}"
-        imagePullPolicy: IfNotPresent
-        resources: &resource_limits
-          limits:
-            cpu: "1"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.randomLogServerAppPort }}
-            httpHeaders:
-            - name: Content-Type
-              value: text/plain
-          initialDelaySeconds: 2
-          periodSeconds: 1
-        volumeMounts: &volume_mounts
-        - name: {{ .Values.logFileVolumeName }}
-          mountPath: {{ .Values.logFileMountPath }}
-      - name: {{ .Values.randomStringContainerName }}
-        image: "{{ .Values.randomStringContainerName }}:latest"
-        env:
-        - *log_file_env
-        imagePullPolicy: IfNotPresent
-        resources: *resource_limits
-        volumeMounts: *volume_mounts
+        - name: {{.Values.randomLogServerAppName}}
+          image: "{{.Values.randomLogServerAppName}}:latest"
+          env:
+            - &log_file_env
+              name: LOG_FILE
+              value: "{{.Values.logFileMountPath}}/{{.Values.logFileName}}"
+            - name: PORT
+              value: "{{.Values.randomLogServerAppPort}}"
+          imagePullPolicy: IfNotPresent
+          resources: &resource_limits
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{.Values.randomLogServerAppPort}}
+              httpHeaders:
+                - name: Content-Type
+                  value: text/plain
+            initialDelaySeconds: 2
+            periodSeconds: 1
+          volumeMounts:
+            - &logfile_mount
+              name: {{.Values.logFileVolumeName}}
+              mountPath: {{.Values.logFileMountPath}}
+        - name: {{.Values.randomStringContainerName}}
+          image: "{{.Values.randomStringContainerName}}:latest"
+          env:
+            - *log_file_env
+            - name: PONG_FILE
+              value: "{{.Values.pongFileMountPath}}/{{.Values.pongFileName}}"
+          imagePullPolicy: IfNotPresent
+          resources: *resource_limits
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - "{{.Values.logFileMountPath}}/{{.Values.logFileName}}"
+          volumeMounts:
+            - *logfile_mount
+            - name: {{.Values.sharedPersistentVolumeName}}
+              mountPath: {{.Values.pongFileMountPath}}
       volumes:
-      - name: {{ .Values.logFileVolumeName }}
-        emptyDir: {}
+        - name: {{.Values.logFileVolumeName}}
+          emptyDir: {}
+        - name: {{.Values.sharedPersistentVolumeName}}
+          persistentVolumeClaim:
+            claimName: {{.Values.sharedPersistentVolumeClaimName}}

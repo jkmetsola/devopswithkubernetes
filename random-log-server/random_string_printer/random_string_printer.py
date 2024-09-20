@@ -3,6 +3,7 @@
 """Generates and prints random strings."""
 
 import argparse
+import json
 import secrets
 import string
 import time
@@ -19,10 +20,15 @@ class RandomStringPrinter:
         return "".join(secrets.choice(letters) for _ in range(length))
 
     @staticmethod
-    def run(logfile: str) -> None:
+    def run(logfile: str, pongfile: str) -> None:
         """Print a random string every 5 seconds."""
         while True:
-            random_string = RandomStringPrinter._generate_random_string()
+            with Path(pongfile).open() as f:
+                pongs = json.load(f)["counter"]
+            random_string = (
+                RandomStringPrinter._generate_random_string() + "\n"
+                "Pings / Pongs: " + str(pongs)
+            )
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
             with Path(logfile).open("w") as f:
                 f.write(f"{timestamp} - {random_string}\n")
@@ -35,9 +41,12 @@ class RandomStringPrinter:
         parser.add_argument(
             "--logfile", type=str, required=True, help="Path to the log file to serve"
         )
+        parser.add_argument(
+            "--pongfile", type=str, required=True, help="Path to the pong file"
+        )
         return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = RandomStringPrinter.parse_args()
-    RandomStringPrinter.run(logfile=args.logfile)
+    RandomStringPrinter.run(logfile=args.logfile, pongfile=args.pongfile)

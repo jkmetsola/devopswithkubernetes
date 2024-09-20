@@ -6,28 +6,36 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Values.pingPongAppName }}
+      app: {{.Values.pingPongAppName}}
   template:
     metadata:
       labels:
-        app: {{ .Values.pingPongAppName }}
+        app: {{.Values.pingPongAppName}}
     spec:
       containers:
-      - name: {{ .Values.pingPongAppName }}
-        image: "{{ .Values.pingPongAppName }}:latest"
-        env:
-        - name: PORT
-          value: "{{ .Values.pingPongAppPort }}"
-        imagePullPolicy: IfNotPresent
-        resources:
-          limits:
-            cpu: "1"
-            memory: "512Mi"
-          requests:
-            cpu: "100m"
-            memory: "256Mi"
-        readinessProbe:
-          tcpSocket:
-            port: {{ .Values.pingPongAppPort }}
-          initialDelaySeconds: 2
-          periodSeconds: 2
+        - name: {{.Values.pingPongAppName}}
+          image: "{{.Values.pingPongAppName}}:latest"
+          env:
+            - name: PORT
+              value: "{{.Values.pingPongAppPort}}"
+            - name: PONG_FILE
+              value: "{{.Values.pongFileMountPath}}/{{.Values.pongFileName}}"
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{.Values.pingPongAppPort}}
+          volumeMounts:
+            - name: {{.Values.sharedPersistentVolumeName}}
+              mountPath: {{.Values.pongFileMountPath}}
+      volumes:
+        - name: {{.Values.sharedPersistentVolumeName}}
+          persistentVolumeClaim:
+            claimName: {{.Values.sharedPersistentVolumeClaimName}}
