@@ -4,5 +4,5 @@
 #
 #    pip-compile /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 #
-ruff==0.6.5
+ruff==0.6.6
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
