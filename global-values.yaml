@@ -1,7 +1,7 @@
-simpleServerAppName: simple-server
-simpleServerAppServiceName: simple-server-svc
-simpleServerAppClusterPort: 1010
-simpleServerAppPort: 3010
+projectAppName: project
+projectAppServiceName: project-svc
+projectAppClusterPort: 1010
+projectAppPort: 3010
 pingPongAppName: pingpong
 pingPongAppServiceName: pingpong-svc
 pingPongAppClusterPort: 1020
@@ -10,3 +10,10 @@ randomLogServerAppName: random-log-server
 randomLogServerAppServiceName: random-log-server-svc
 randomLogServerAppClusterPort: 1030
 randomLogServerAppPort: 3030
+logFileMountPath: /logfile
+logFileName: logfile.log
+logFileVolumeName: logfile-volume
+pongFileMountPath: /pong
+pongFileName: pong.txt
+sharedPersistentVolumeName: shared-volume
+sharedPersistentVolumeClaimName: shared-volume-claim

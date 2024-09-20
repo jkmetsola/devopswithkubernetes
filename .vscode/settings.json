@@ -10,5 +10,9 @@
     },
     "shellcheck.useWorkspaceRootAsCwd": true,
     "remote.autoForwardPorts": false,
-    "remote.forwardOnOpen": false
+    "remote.forwardOnOpen": false,
+    "files.associations": {
+        "*.yml": "yaml",
+        "*.yaml": "yaml"
+    },
 }
