@@ -1,14 +1,24 @@
 #!/bin/bash
 set -euo pipefail
 
+WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
+
+# shellcheck source=.env
+source "$WORKSPACE_FOLDER/.env"
+# shellcheck source=.devcontainer/setupEnv.sh
+source "${SETUP_ENV_PATH}" "false"
+
 CHECKED_FILES=$(git ls-files)
 ERROR_LOG_FILE=$(mktemp)
 
-if ps -ocommand= -p $PPID | grep --quiet -e '--amend'; then
-    PREVIOUS_COMMIT_REF=HEAD~1
-else
-    PREVIOUS_COMMIT_REF=HEAD
-fi
+
+get_previous_commit_ref() {
+    if ps -ocommand= -p $PPID | grep --quiet -e '--amend'; then
+        echo "HEAD~1"
+    else
+        echo "HEAD"
+    fi
+}
 
 check_whitespace_error() {
     git diff-index --check --cached HEAD --
@@ -19,11 +29,11 @@ check_linefeed_eof() {
     | xargs -L 1 --no-run-if-empty "${CHECK_LINEFEED}"
 }
 
-check_matches_for_git_files(){
+check_matches_for_git_files() {
     check_if_file_is_whitelisted() {
         ./.devcontainer/whitelist_parser/whitelist_parser.py \
         --whitelist-file .devcontainer/git-hooks/whitelist.json \
-        --previous-commit-sha "$(git rev-parse ${PREVIOUS_COMMIT_REF})" \
+        --previous-commit-sha "$(git rev-parse "$(get_previous_commit_ref)")" \
         --file "$1"
     }
 
@@ -82,18 +92,35 @@ check_matches_for_modified_files() {
     fi
 }
 
-WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
-# shellcheck source=.env
-source "$WORKSPACE_FOLDER/.env"
-# shellcheck source=.devcontainer/setupEnv.sh
-source "${SETUP_ENV_PATH}" "false"
+lint_python_files() {
+    ruff check
+    ruff format --diff
+}
+
+lint_sh_files() {
+    find . -type f -name "*.sh" -print0 | xargs -0 shellcheck
+}
+
+lint_helm_templates() {
+    find "${WORKSPACE_FOLDER}"/project -mindepth 2 -maxdepth 2 -type d -print0 \
+        | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
+        | xargs yamllint
+}
+
+lint_other_yaml_files() {
+    find . -type f -name '*.yaml' ! -path './project/*' -print0 | xargs -0 yamllint
+}
+
+lint_docker_files() {
+    find . -name Dockerfile -print0 | xargs -0 hadolint
+}
+
 check_whitespace_error
 check_linefeed_eof
 check_matches_for_renamed_files
 check_matches_for_added_files
 check_matches_for_modified_files
-ruff check --exclude .vscode-server
-ruff format --exclude .vscode-server --diff
-find . -type f -name "*.sh" -print0 | xargs -0 shellcheck
-hadolint Dockerfile
-actionlint -ignore 'workflow is empty'
+lint_sh_files
+lint_helm_templates
+lint_other_yaml_files
+lint_docker_files

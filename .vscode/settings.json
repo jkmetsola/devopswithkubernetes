@@ -11,8 +11,9 @@
     "shellcheck.useWorkspaceRootAsCwd": true,
     "remote.autoForwardPorts": false,
     "remote.forwardOnOpen": false,
-    "files.associations": {
-        "*.yml": "yaml",
-        "*.yaml": "yaml"
-    },
+    "helm-intellisense.customValueFileNames": [
+        "values.yaml",
+        "global-values.yaml"
+    ],
+    "yaml.format.bracketSpacing": false,
 }

@@ -1,0 +1,54 @@
+---
+{{- with .Values}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ index .containerNames 0 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{index .containerNames 0}}
+  template:
+    metadata:
+      labels:
+        app: {{index .containerNames 0}}
+    spec:
+      containers:
+        - name: {{index .containerNames 0}}
+          image: "{{index .containerNames 0}}:latest"
+          imagePullPolicy: IfNotPresent
+          resources:
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+          command:
+            - "/bin/bash"
+            - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{.projectAppPort}}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: {{.tempStartupScriptVolumeName}}
+              mountPath: {{.tempScriptVolumeMountPath}}
+              readOnly: true
+            - name: {{.sharedPersistentVolumeName}}
+              mountPath: {{.randomPictureFileMountPath}}
+      volumes:
+        - name: {{.sharedPersistentVolumeName}}
+          persistentVolumeClaim:
+            claimName: {{.sharedPersistentVolumeClaimName}}
+        - name: {{.tempStartupScriptVolumeName}}
+          configMap:
+            name: {{index .containerNames 0}}
+            items:
+              - key: {{index .containerNames 0}}
+                path: {{index .containerNames 0}}
+{{- end}}

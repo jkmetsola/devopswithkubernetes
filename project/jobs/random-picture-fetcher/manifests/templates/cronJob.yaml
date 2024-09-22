@@ -1,0 +1,42 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{index .Values.containerNames 0}}
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: {{index .Values.containerNames 0}}
+              image: "{{index .Values.containerNames 0}}:latest"
+              imagePullPolicy: IfNotPresent
+              command:
+                - "/bin/bash"
+                - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 0}}"
+              resources:
+                limits:
+                  memory: "128Mi"
+                  cpu: "500m"
+                requests:
+                  memory: "64Mi"
+                  cpu: "250m"
+              volumeMounts:
+                - name: {{.Values.sharedPersistentVolumeName}}
+                  mountPath: {{.Values.randomPictureFileMountPath}}
+                - name: {{.Values.tempStartupScriptVolumeName}}
+                  mountPath: {{.Values.tempScriptVolumeMountPath}}
+                  readOnly: true
+          volumes:
+            - name: {{.Values.sharedPersistentVolumeName}}
+              persistentVolumeClaim:
+                claimName: {{.Values.sharedPersistentVolumeClaimName}}
+            - name: {{.Values.tempStartupScriptVolumeName}}
+              configMap:
+                name: {{index .Values.containerNames 0}}
+                items:
+                  - key: {{index .Values.containerNames 0}}
+                    path: {{index .Values.containerNames 0}}

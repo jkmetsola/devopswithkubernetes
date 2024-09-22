@@ -4,5 +4,11 @@
 #
 #    pip-compile /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 #
-ruff==0.6.6
+pathspec==0.12.1
+    # via yamllint
+pyyaml==6.0.2
+    # via yamllint
+ruff==0.6.7
+    # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
+yamllint==1.35.1
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in

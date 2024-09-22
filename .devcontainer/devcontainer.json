@@ -49,7 +49,8 @@
                 "redhat.vscode-yaml",
                 "GitHub.copilot",
                 "GitHub.copilot-chat",
-                "ms-kubernetes-tools.vscode-kubernetes-tools"
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "Tim-Koehler.helm-intellisense"
             ]
         }
     },

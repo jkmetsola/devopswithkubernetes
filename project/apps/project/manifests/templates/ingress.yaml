@@ -1,0 +1,34 @@
+---
+{{- with .Values}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: project-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.projectAppServiceName}}
+                port:
+                  number: {{.projectAppClusterPort}}
+          - path: /pingpong
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.pingPongAppServiceName}}
+                port:
+                  number: {{.pingPongAppClusterPort}}
+          - path: /randomlog
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.randomLogServerAppServiceName}}
+                port:
+                  number: {{.randomLogServerAppClusterPort}}
+{{- end}}

@@ -1,0 +1,22 @@
+---
+{{- with .Values}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{index .containerNames 0}}
+data:
+  {{index .containerNames 0}}: |
+    #!/bin/bash
+    set -euo pipefail
+
+    /app/log_server/log_server.py \
+    --port "{{.randomLogServerAppPort}}" \
+    --logfile "{{.logFileMountPath}}/{{.logFileName}}"
+  {{index .containerNames 1}}: |
+    #!/bin/bash
+    set -euo pipefail
+
+    /app/random_string_printer/random_string_printer.py \
+    --logfile "{{.logFileMountPath}}/{{.logFileName}}" \
+    --pongfile "{{.pongFileMountPath}}/{{.pongFileName}}"
+{{- end}}
