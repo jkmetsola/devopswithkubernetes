@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{index .Values.containerNames 0}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{index .Values.containerNames 0}}
+  template:
+    metadata:
+      labels:
+        app: {{index .Values.containerNames 0}}
+    spec:
+      containers:
+        - name: {{index .Values.containerNames 0}}
+          image: "{{index .Values.containerNames 0}}:latest"
+          imagePullPolicy: IfNotPresent
+          resources: &resource_limits
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+          command:
+            - "/bin/bash"
+            - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 0}}"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: {{.Values.randomLogServerAppPort}}
+              httpHeaders:
+                - name: Content-Type
+                  value: text/plain
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - &logfile_mount
+              name: {{.Values.logFileVolumeName}}
+              mountPath: {{.Values.logFileMountPath}}
+            - &temp_script_mount
+              name: {{.Values.tempStartupScriptVolumeName}}
+              mountPath: {{.Values.tempScriptVolumeMountPath}}
+        - name: {{index .Values.containerNames 1}}
+          image: "{{index .Values.containerNames 1}}:latest"
+          imagePullPolicy: IfNotPresent
+          resources: *resource_limits
+          command:
+            - "/bin/bash"
+            - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 1}}"
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - "{{.Values.logFileMountPath}}/{{.Values.logFileName}}"
+          volumeMounts:
+            - *logfile_mount
+            - *temp_script_mount
+            - name: {{.Values.sharedPersistentVolumeName}}
+              mountPath: {{.Values.pongFileMountPath}}
+      volumes:
+        - name: {{.Values.logFileVolumeName}}
+          emptyDir: {}
+        - name: {{.Values.sharedPersistentVolumeName}}
+          persistentVolumeClaim:
+            claimName: {{.Values.sharedPersistentVolumeClaimName}}
+        - name: {{.Values.tempStartupScriptVolumeName}}
+          configMap:
+            name: {{index .Values.containerNames 0}}
+            items:
+              - key: {{index .Values.containerNames 0}}
+                path: {{index .Values.containerNames 0}}
+              - key: {{index .Values.containerNames 1}}
+                path: {{index .Values.containerNames 1}}

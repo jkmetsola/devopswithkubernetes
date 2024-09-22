@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{index .Values.containerNames 0}}
+data:
+  {{index .Values.containerNames 0}}: |
+    #!/bin/bash
+    set -euo pipefail
+
+    wget -O "{{.Values.randomPictureFileMountPath}}/{{.Values.randomPictureFileName}}" \
+    "https://picsum.photos/1200"

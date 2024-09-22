@@ -1,9 +1,16 @@
 {
-    "d32679a2c88d16da4fe90ad54c8242b13d3cbf4d": [
-        "simple_server.py",
-        "run.sh"
+    "dcdb1d66e0b3c4e6e5d16fb9c716896752493d99": [
+        "pingpong.py",
+        "log_server.py",
+        "random_string_printer.py",
+        "global-values.yaml",
+        "setupEnv.sh",
+        "devcontainer.json",
+        "requirements-dev.in"
     ],
     "permanent": [
+        "cronJob.yaml",
+        "configMap.yaml",
         "persistentVolume.yaml",
         "persistentVolumeClaim.yaml",
         "values.yaml",
