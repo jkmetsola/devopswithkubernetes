@@ -8,7 +8,7 @@ source "$WORKSPACE_FOLDER/.env"
 # shellcheck source=.devcontainer/setupEnv.sh
 source "${SETUP_ENV_PATH}" "false"
 
-CHECKED_FILES=$(git ls-files)
+CHECKED_FILES=$(git ls-files | grep -v 'manifests/global-values.yaml' | grep -v requirements-dev.txt)
 ERROR_LOG_FILE=$(mktemp)
 
 
@@ -93,8 +93,8 @@ check_matches_for_modified_files() {
 }
 
 lint_python_files() {
-    ruff check
-    ruff format --diff
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --diff
 }
 
 lint_sh_files() {
@@ -129,6 +129,7 @@ check_linefeed_eof
 check_matches_for_renamed_files
 check_matches_for_added_files
 check_matches_for_modified_files
+lint_python_files
 lint_sh_files
 lint_helm_templates
 lint_other_yaml_files

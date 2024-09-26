@@ -1,3 +1,4 @@
 ---
 containerNames:
   - project
+serverindexFile: index.html

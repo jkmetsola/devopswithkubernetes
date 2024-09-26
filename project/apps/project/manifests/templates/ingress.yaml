@@ -17,6 +17,13 @@ spec:
                 name: {{.projectAppServiceName}}
                 port:
                   number: {{.projectAppClusterPort}}
+          - path: "{{.randomPictureFileMountPath}}"
+            pathType: Prefix
+            backend:
+              service:
+                name: {{.fileServerAppServiceName}}
+                port:
+                  number: {{.fileServerAppClusterPort}}
           - path: /pingpong
             pathType: Prefix
             backend:

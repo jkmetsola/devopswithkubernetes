@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Server that increments a counter each time it is accessed."""
 
-import argparse
 import http.server
 import json
 import socketserver
@@ -43,20 +42,7 @@ class PingPongServer:
             sys.stdout.flush()
             httpd.serve_forever()
 
-    @staticmethod
-    def parse_args() -> argparse.Namespace:
-        """Parse command-line arguments."""
-        parser = argparse.ArgumentParser(description="PingPong Server")
-        parser.add_argument(
-            "--port", type=int, required=True, help="Port to run the server on"
-        )
-        parser.add_argument(
-            "--counter-file", type=str, required=True, help="Counter file path"
-        )
-        return parser.parse_args()
-
 
 if __name__ == "__main__":
-    args = PingPongServer.parse_args()
-    COUNTER_FILE = args.counter_file
-    PingPongServer.run(args.port)
+    COUNTER_FILE = "{{.pongFileMountPath}}/{{.pongFileName}}"
+    PingPongServer.run(int("{{.pingPongAppPort}}"))

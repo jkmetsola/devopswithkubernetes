@@ -32,12 +32,12 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: {{.pingPongAppPort}}
+              port: {{.fileserverAppPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:
             - name: {{.sharedPersistentVolumeName}}
-              mountPath: {{.pongFileMountPath}}
+              mountPath: {{.randomPictureFileMountPath}}
             - name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true

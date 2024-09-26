@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+
+wget -O "{{.randomPictureFileMountPath}}/{{.randomPictureFileName}}" \
+    "https://picsum.photos/1200"

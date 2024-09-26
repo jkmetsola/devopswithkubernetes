@@ -1,8 +1,9 @@
 ---
+{{- with .Values}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{index .Values.containerNames 0}}
+  name: {{index .containerNames 0}}
 spec:
   schedule: "0 * * * *"
   jobTemplate:
@@ -11,12 +12,12 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: {{index .Values.containerNames 0}}
-              image: "{{index .Values.containerNames 0}}:latest"
+            - name: {{index .containerNames 0}}
+              image: "{{index .containerNames 0}}:latest"
               imagePullPolicy: IfNotPresent
               command:
                 - "/bin/bash"
-                - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 0}}"
+                - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
               resources:
                 limits:
                   memory: "128Mi"
@@ -25,18 +26,19 @@ spec:
                   memory: "64Mi"
                   cpu: "250m"
               volumeMounts:
-                - name: {{.Values.sharedPersistentVolumeName}}
-                  mountPath: {{.Values.randomPictureFileMountPath}}
-                - name: {{.Values.tempStartupScriptVolumeName}}
-                  mountPath: {{.Values.tempScriptVolumeMountPath}}
+                - name: {{.sharedPersistentVolumeName}}
+                  mountPath: {{.randomPictureFileMountPath}}
+                - name: {{.tempStartupScriptVolumeName}}
+                  mountPath: {{.tempScriptVolumeMountPath}}
                   readOnly: true
           volumes:
-            - name: {{.Values.sharedPersistentVolumeName}}
+            - name: {{.sharedPersistentVolumeName}}
               persistentVolumeClaim:
-                claimName: {{.Values.sharedPersistentVolumeClaimName}}
-            - name: {{.Values.tempStartupScriptVolumeName}}
+                claimName: {{.sharedPersistentVolumeClaimName}}
+            - name: {{.tempStartupScriptVolumeName}}
               configMap:
-                name: {{index .Values.containerNames 0}}
+                name: {{index .containerNames 0}}
                 items:
-                  - key: {{index .Values.containerNames 0}}
-                    path: {{index .Values.containerNames 0}}
+                  - key: {{index .containerNames 0}}
+                    path: {{index .containerNames 0}}
+{{- end}}

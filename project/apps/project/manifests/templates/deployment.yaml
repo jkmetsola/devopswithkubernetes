@@ -27,6 +27,7 @@ spec:
               memory: "256Mi"
           command:
             - "/bin/bash"
+            - "-c"
             - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
           readinessProbe:
             httpGet:
@@ -41,6 +42,7 @@ spec:
               readOnly: true
             - name: {{.sharedPersistentVolumeName}}
               mountPath: {{.randomPictureFileMountPath}}
+              readOnly: true
       volumes:
         - name: {{.sharedPersistentVolumeName}}
           persistentVolumeClaim:
@@ -51,4 +53,7 @@ spec:
             items:
               - key: {{index .containerNames 0}}
                 path: {{index .containerNames 0}}
+                mode: 0755
+              - key: {{.serverindexFile}}
+                path: {{.serverindexFile}}
 {{- end}}
