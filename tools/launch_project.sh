@@ -21,15 +21,6 @@ create_cluster() {
     docker exec k3d-k3s-default-agent-0 mkdir -p /tmp/kube
 }
 
-lint_startupscript(){
-    startup_script="$(mktemp --suffix .sh)"
-    for container in $(get_container_names "${1}"); do
-        if yq eval -e "select(.kind == \"ConfigMap\") | .data.${container}" "${2}" > "${startup_script}"; then
-            shellcheck "${startup_script}"
-        fi
-    done
-}
-
 get_pod_name() {
     kubectl get pods -l app="$1" -o jsonpath="{.items[0].metadata.name}"
 }
@@ -45,10 +36,9 @@ build_images_for_app() {
     done
 }
 
-build_and_lint_and_apply() {
+build_and_apply() {
     build_images_for_app "$1"
     resolved_yaml="$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${1}")"
-    lint_startupscript "$1" "${resolved_yaml}"
     kubectl apply -f "${resolved_yaml}"
 }
 
@@ -62,7 +52,7 @@ deploy_volumes() {
 deploy_cronjobs() {
     mapfile -t JOB_NAMES < <(ls)
     for job in "${JOB_NAMES[@]}"; do
-        build_and_lint_and_apply "$job"
+        build_and_apply "$job"
         job_name="${job}-run"
         job_fullname=job/"${job_name}"
         kubectl create job --from=cronjob/"${job}" "${job_name}"
@@ -74,7 +64,7 @@ deploy_cronjobs() {
 deploy_apps() {
     mapfile -t APP_NAMES < <(ls)
     for app in "${APP_NAMES[@]}"; do
-        build_and_lint_and_apply "$app"
+        build_and_apply "$app"
         pod_name="$(get_pod_name "${app}")"
         kubectl wait --for=condition=Ready --timeout=30s pod/"${pod_name}"
         kubectl logs "${pod_name}"

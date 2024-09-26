@@ -2,7 +2,6 @@
 
 """Simple server tool."""
 
-import argparse
 import http.server
 import socketserver
 import sys
@@ -15,10 +14,11 @@ class ProjectRequestHandler(http.server.SimpleHTTPRequestHandler):
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the log file and returning its content."""
         self.send_response(200)
-        self.send_header("Content-type", "image/jpeg")
+        self.send_header("Content-type", "text/html")
         self.end_headers()
-        with Path.open(PICTURE_PATH, "rb") as file:
-            self.wfile.write(file.read())
+        index_file = Path("{{.tempScriptVolumeMountPath}}/{{.serverindexFile}}")
+        with index_file.open("r") as file:
+            self.wfile.write(file.read().encode("utf-8"))
 
 
 class ProjectServer:
@@ -32,23 +32,6 @@ class ProjectServer:
             sys.stdout.flush()
             httpd.serve_forever()
 
-    @staticmethod
-    def parse_args() -> argparse.Namespace:
-        """Parse command line arguments."""
-        parser = argparse.ArgumentParser(description="Simple server tool.")
-        parser.add_argument(
-            "--port", type=int, required=True, help="Port to run the server on."
-        )
-        parser.add_argument(
-            "--picture-file",
-            type=str,
-            required=True,
-            help="Path to the picture to serve.",
-        )
-        return parser.parse_args()
-
 
 if __name__ == "__main__":
-    args = ProjectServer.parse_args()
-    PICTURE_PATH = args.picture_file
-    ProjectServer.run(args.port)
+    ProjectServer.run(int("{{.projectAppPort}}"))

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo List</title>
+</head>
+
+<body>
+    <h1>Todo List</h1>
+    <input type="text" id="todoInput" maxlength="140" placeholder="Enter todo">
+    <button id="sendButton">Send</button>
+    <ul id="todoList">
+        <li>Buy groceries</li>
+        <li>Read a book</li>
+        <li>Write some code</li>
+    </ul>
+    <h2>Embedded Image</h2>
+    <img src="{{.randomPictureFileMountPath}}/{{.randomPictureFileName}}" alt="Embedded Image">
+    <script>
+        document.getElementById('sendButton').addEventListener('click', function () {
+            const input = document.getElementById('todoInput');
+            if (input.value.length <= 140) {
+                const li = document.createElement('li');
+                li.textContent = input.value;
+                document.getElementById('todoList').appendChild(li);
+                input.value = '';
+            } else {
+                alert('Todo must be 140 characters or less.');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -8,6 +8,9 @@ pingPongAppPort: 3020
 randomLogServerAppServiceName: random-log-server-svc
 randomLogServerAppClusterPort: 1030
 randomLogServerAppPort: 3030
+fileServerAppServiceName: fileserver-svc
+fileServerAppClusterPort: 1040
+fileserverAppPort: 3040
 logFileMountPath: /logfile
 logFileName: logfile.log
 logFileVolumeName: logfile-volume
@@ -18,4 +21,4 @@ sharedPersistentVolumeClaimName: shared-volume-claim
 randomPictureFileMountPath: /random-picture
 randomPictureFileName: random_picture.jpg
 tempStartupScriptVolumeName: temp-startup-script-volume
-tempScriptVolumeMountPath: /startup-scripts
+tempScriptVolumeMountPath: /app-scripts

@@ -26,6 +26,7 @@ spec:
               memory: "256Mi"
           command:
             - "/bin/bash"
+            - "-c"
             - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 0}}"
           readinessProbe:
             httpGet:
@@ -43,12 +44,14 @@ spec:
             - &temp_script_mount
               name: {{.Values.tempStartupScriptVolumeName}}
               mountPath: {{.Values.tempScriptVolumeMountPath}}
+              readOnly: true
         - name: {{index .Values.containerNames 1}}
           image: "{{index .Values.containerNames 1}}:latest"
           imagePullPolicy: IfNotPresent
           resources: *resource_limits
           command:
             - "/bin/bash"
+            - "-c"
             - "{{.Values.tempScriptVolumeMountPath}}/{{index .Values.containerNames 1}}"
           readinessProbe:
             exec:
@@ -72,5 +75,7 @@ spec:
             items:
               - key: {{index .Values.containerNames 0}}
                 path: {{index .Values.containerNames 0}}
+                mode: 0755
               - key: {{index .Values.containerNames 1}}
                 path: {{index .Values.containerNames 1}}
+                mode: 0755

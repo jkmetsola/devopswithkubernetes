@@ -1,3 +1,1 @@
 FROM python:3.11-slim AS pingpong
-
-COPY ./pingpong /app/pingpong

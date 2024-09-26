@@ -1,0 +1,15 @@
+---
+{{- with .Values}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.fileServerAppServiceName}}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{index .containerNames 0}}
+  ports:
+    - port: {{.fileServerAppClusterPort}}
+      protocol: TCP
+      targetPort: {{.fileserverAppPort}}
+{{- end}}

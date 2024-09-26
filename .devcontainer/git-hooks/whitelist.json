@@ -1,26 +1,22 @@
 {
-    "dcdb1d66e0b3c4e6e5d16fb9c716896752493d99": [
-        "pingpong.py",
-        "log_server.py",
-        "random_string_printer.py",
+    "e654e3c85b831f45fc0c5392418315b26f97adf1": [
         "global-values.yaml",
-        "setupEnv.sh",
-        "devcontainer.json",
-        "requirements-dev.in"
+        "fileserver",
+        "random-picture-fetcher",
+        "requirements-dev.txt"
     ],
     "permanent": [
         "cronJob.yaml",
-        "configMap.yaml",
         "persistentVolume.yaml",
         "persistentVolumeClaim.yaml",
         "values.yaml",
         "deployment.yaml",
         "service.yaml",
         "ingress.yaml",
-        "__init__.py",
         "Dockerfile",
         ".shellcheckrc",
-        "launch_project.sh",
-        "Chart.yaml"
+        "Chart.yaml",
+        "README.md",
+        ".gitignore"
     ]
 }
