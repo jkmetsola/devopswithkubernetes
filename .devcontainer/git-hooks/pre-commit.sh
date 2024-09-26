@@ -115,6 +115,15 @@ lint_docker_files() {
     find . -name Dockerfile -print0 | xargs -0 hadolint
 }
 
+lint_html_files(){
+    docker build \
+        -t htmlhint-linter \
+        -f "${WORKSPACE_FOLDER}/.devcontainer/git-hooks/htmlhint/Dockerfile" \
+        "${WORKSPACE_FOLDER}"
+    find . -type f -name '*.html' -print0 | xargs -0 -t -I {} -n 1 \
+        docker run --rm htmlhint-linter /workspace/{}
+}
+
 check_whitespace_error
 check_linefeed_eof
 check_matches_for_renamed_files
@@ -124,3 +133,4 @@ lint_sh_files
 lint_helm_templates
 lint_other_yaml_files
 lint_docker_files
+lint_html_files
