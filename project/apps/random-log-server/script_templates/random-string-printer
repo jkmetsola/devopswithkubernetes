@@ -2,12 +2,13 @@
 
 """Generates and prints random strings."""
 
-import json
 import secrets
 import string
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+
+import requests
 
 
 class RandomStringPrinter:
@@ -19,14 +20,13 @@ class RandomStringPrinter:
         return "".join(secrets.choice(letters) for _ in range(length))
 
     @staticmethod
-    def run(logfile: str, pongfile: str) -> None:
+    def run(logfile: str, pongs_url: str) -> None:
         """Print a random string every 5 seconds."""
         while True:
-            with Path(pongfile).open() as f:
-                pongs = json.load(f)["counter"]
+            resp = requests.get(pongs_url, timeout=5)
             random_string = (
                 RandomStringPrinter._generate_random_string() + "\n"
-                "Pings / Pongs: " + str(pongs)
+                "Pings / Pongs: " + str(resp.json()["pongs"])
             )
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
             with Path(logfile).open("w") as f:
@@ -37,5 +37,5 @@ class RandomStringPrinter:
 if __name__ == "__main__":
     RandomStringPrinter.run(
         logfile="{{.logFileMountPath}}/{{.logFileName}}",
-        pongfile="{{.pongFileMountPath}}/{{.pongFileName}}",
+        pongs_url="http://{{.pingPongAppServiceName}}:{{.pingPongAppClusterPort}}",
     )

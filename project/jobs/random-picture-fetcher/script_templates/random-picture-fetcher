@@ -1,5 +1,5 @@
 #!/bin/bash
 set -euo pipefail
 
-wget -O "{{.randomPictureFileMountPath}}/{{.randomPictureFileName}}" \
+wget -O "{{.sharedVolumeMountPath}}/{{.randomPictureFileName}}" \
     "https://picsum.photos/1200"

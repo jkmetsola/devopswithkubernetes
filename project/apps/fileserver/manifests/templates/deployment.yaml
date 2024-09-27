@@ -37,7 +37,7 @@ spec:
             periodSeconds: 10
           volumeMounts:
             - name: {{.sharedPersistentVolumeName}}
-              mountPath: {{.randomPictureFileMountPath}}
+              mountPath: {{.sharedVolumeMountPath}}
             - name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true

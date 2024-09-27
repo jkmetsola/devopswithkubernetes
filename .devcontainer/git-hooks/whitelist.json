@@ -1,11 +1,12 @@
 {
     "e654e3c85b831f45fc0c5392418315b26f97adf1": [
-        "global-values.yaml",
-        "fileserver",
-        "random-picture-fetcher",
-        "requirements-dev.txt"
     ],
     "permanent": [
+        "requirements.in",
+        "random-string-printer",
+        "fileserver",
+        "random-picture-fetcher",
+        "global-values.yaml",
         "cronJob.yaml",
         "persistentVolume.yaml",
         "persistentVolumeClaim.yaml",
@@ -17,6 +18,7 @@
         ".shellcheckrc",
         "Chart.yaml",
         "README.md",
-        ".gitignore"
+        ".gitignore",
+        "pingpong"
     ]
 }

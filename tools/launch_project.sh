@@ -80,10 +80,15 @@ verify_lb_connectivity(){
     echo " OK"
 }
 
-create_cluster
-(cd "${WORKSPACE_FOLDER}"/project/volumes && deploy_volumes)
-(cd "${WORKSPACE_FOLDER}"/project/jobs && deploy_cronjobs)
-(cd "${WORKSPACE_FOLDER}"/project/apps && deploy_apps)
-kubectl cluster-info
-kubectl get svc,ing
-verify_lb_connectivity
+if [[ -n "${1:-}" ]]; then
+    cd "${WORKSPACE_FOLDER}/$1/.."
+    build_and_apply "$(basename "${WORKSPACE_FOLDER}/$1")"
+else
+    create_cluster
+    (cd "${WORKSPACE_FOLDER}"/project/volumes && deploy_volumes)
+    (cd "${WORKSPACE_FOLDER}"/project/jobs && deploy_cronjobs)
+    (cd "${WORKSPACE_FOLDER}"/project/apps && deploy_apps)
+    kubectl cluster-info
+    kubectl get svc,ing
+    verify_lb_connectivity
+fi

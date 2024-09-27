@@ -14,11 +14,10 @@ fileserverAppPort: 3040
 logFileMountPath: /logfile
 logFileName: logfile.log
 logFileVolumeName: logfile-volume
-pongFileMountPath: /pong
 pongFileName: pong.txt
 sharedPersistentVolumeName: shared-volume
 sharedPersistentVolumeClaimName: shared-volume-claim
-randomPictureFileMountPath: /random-picture
+sharedVolumeMountPath: /shared-volume
 randomPictureFileName: random_picture.jpg
 tempStartupScriptVolumeName: temp-startup-script-volume
 tempScriptVolumeMountPath: /app-scripts

@@ -24,7 +24,7 @@ class PingPongRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"message": f"pong {self._get_counter_value()}"})
+        response = json.dumps({"pongs": self._get_counter_value()})
         self.wfile.write(response.encode())
         self._set_counter_value(self._get_counter_value() + 1)
 
@@ -44,5 +44,5 @@ class PingPongServer:
 
 
 if __name__ == "__main__":
-    COUNTER_FILE = "{{.pongFileMountPath}}/{{.pongFileName}}"
+    COUNTER_FILE = "{{.sharedVolumeMountPath}}/{{.pongFileName}}"
     PingPongServer.run(int("{{.pingPongAppPort}}"))

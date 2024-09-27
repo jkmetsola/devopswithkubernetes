@@ -17,7 +17,7 @@ spec:
                 name: {{.projectAppServiceName}}
                 port:
                   number: {{.projectAppClusterPort}}
-          - path: "{{.randomPictureFileMountPath}}"
+          - path: "{{.sharedVolumeMountPath}}"
             pathType: Prefix
             backend:
               service:

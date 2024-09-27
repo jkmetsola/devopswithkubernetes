@@ -27,7 +27,7 @@ spec:
                   cpu: "250m"
               volumeMounts:
                 - name: {{.sharedPersistentVolumeName}}
-                  mountPath: {{.randomPictureFileMountPath}}
+                  mountPath: {{.sharedVolumeMountPath}}
                 - name: {{.tempStartupScriptVolumeName}}
                   mountPath: {{.tempScriptVolumeMountPath}}
                   readOnly: true

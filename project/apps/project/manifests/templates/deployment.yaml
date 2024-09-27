@@ -41,7 +41,7 @@ spec:
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true
             - name: {{.sharedPersistentVolumeName}}
-              mountPath: {{.randomPictureFileMountPath}}
+              mountPath: {{.sharedVolumeMountPath}}
               readOnly: true
       volumes:
         - name: {{.sharedPersistentVolumeName}}

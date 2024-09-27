@@ -61,14 +61,9 @@ spec:
           volumeMounts:
             - *logfile_mount
             - *temp_script_mount
-            - name: {{.Values.sharedPersistentVolumeName}}
-              mountPath: {{.Values.pongFileMountPath}}
       volumes:
         - name: {{.Values.logFileVolumeName}}
           emptyDir: {}
-        - name: {{.Values.sharedPersistentVolumeName}}
-          persistentVolumeClaim:
-            claimName: {{.Values.sharedPersistentVolumeClaimName}}
         - name: {{.Values.tempStartupScriptVolumeName}}
           configMap:
             name: {{index .Values.containerNames 0}}

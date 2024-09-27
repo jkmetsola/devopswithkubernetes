@@ -4,3 +4,13 @@
 #
 #    pip-compile /dev-env/devopswithkubernetes/imagefiles/requirements.in
 #
+certifi==2024.8.30
+    # via requests
+charset-normalizer==3.3.2
+    # via requests
+idna==3.10
+    # via requests
+requests==2.32.3
+    # via -r /dev-env/devopswithkubernetes/imagefiles/requirements.in
+urllib3==2.2.3
+    # via requests
