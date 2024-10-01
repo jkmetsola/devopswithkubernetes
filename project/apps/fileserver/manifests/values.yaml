@@ -1,3 +1,6 @@
 ---
 containerNames:
   - fileserver
+serviceName: fileserver-svc
+clusterPort: 1040
+appPort: 3040

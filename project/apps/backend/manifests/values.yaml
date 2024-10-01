@@ -1,0 +1,7 @@
+---
+containerNames:
+  - backend
+  - backend-debug
+serviceName: backend-svc
+clusterPort: 1015
+appPort: 3015

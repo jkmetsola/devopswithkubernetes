@@ -32,7 +32,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: {{.pingPongAppPort}}
+              port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:

@@ -1,0 +1,15 @@
+---
+containerNames:
+  - logserver
+  - printer
+logFileMountPath: /logfile
+logFileName: logfile.log
+logFileVolumeName: logfile-volume
+serviceName: logserver-svc
+clusterPort: 1030
+appPort: 3030
+dependencyValues:
+  apps:
+    pingpong:
+      - serviceName
+      - clusterPort

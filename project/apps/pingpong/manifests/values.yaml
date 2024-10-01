@@ -1,3 +1,6 @@
 ---
 containerNames:
   - pingpong
+serviceName: pingpong-svc
+clusterPort: 1020
+appPort: 3020

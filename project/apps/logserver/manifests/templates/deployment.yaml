@@ -18,7 +18,7 @@ spec:
         - name: {{index .containerNames 0}}
           image: "{{index .containerNames 0}}:latest"
           imagePullPolicy: IfNotPresent
-          resources:
+          resources: &resource_limits
             limits:
               cpu: "1"
               memory: "512Mi"
@@ -33,23 +33,46 @@ spec:
             httpGet:
               path: /
               port: {{.appPort}}
+              httpHeaders:
+                - name: Content-Type
+                  value: text/plain
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:
-            - name: {{.sharedPersistentVolumeName}}
-              mountPath: {{.sharedVolumeMountPath}}
-            - name: {{.tempStartupScriptVolumeName}}
+            - &logfile_mount
+              name: {{.logFileVolumeName}}
+              mountPath: {{.logFileMountPath}}
+            - &temp_script_mount
+              name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true
+        - name: {{index .containerNames 1}}
+          image: "{{index .containerNames 1}}:latest"
+          imagePullPolicy: IfNotPresent
+          resources: *resource_limits
+          command:
+            - "/bin/bash"
+            - "-c"
+            - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 1}}"
+          readinessProbe:
+            exec:
+              command:
+                - cat
+                - "{{.logFileMountPath}}/{{.logFileName}}"
+          volumeMounts:
+            - *logfile_mount
+            - *temp_script_mount
       volumes:
-        - name: {{.sharedPersistentVolumeName}}
-          persistentVolumeClaim:
-            claimName: {{.sharedPersistentVolumeClaimName}}
+        - name: {{.logFileVolumeName}}
+          emptyDir: {}
         - name: {{.tempStartupScriptVolumeName}}
           configMap:
             name: {{index .containerNames 0}}
             items:
               - key: {{index .containerNames 0}}
                 path: {{index .containerNames 0}}
+                mode: 0755
+              - key: {{index .containerNames 1}}
+                path: {{index .containerNames 1}}
                 mode: 0755
 {{- end}}

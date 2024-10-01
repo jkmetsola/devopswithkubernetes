@@ -1,0 +1,4 @@
+---
+containerNames:
+  - picturefetcher
+randomPictureFileName: random_picture.jpg

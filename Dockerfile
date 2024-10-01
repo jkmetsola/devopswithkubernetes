@@ -48,6 +48,7 @@ RUN ./${REPOS_DEVENV_FILENAME} && \
     rm -rf /var/lib/apt/lists/* && \
     ./no-apt-packages-devenv.sh && \
     ./${CONFIGURE_DEVUSER_FILENAME} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
+
 USER "$DEVUSER"
 
 ENTRYPOINT [ "/bin/bash", "-c" ]

@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+"""Starts a simple HTTP server that serves the content of a specified log file."""
+
+import http.server
+import socketserver
+import sys
+from pathlib import Path
+
+LOG_FILE = Path("{{.logFileMountPath}}") / "{{.logFileName}}"
+
+
+class LogRequestHandler(http.server.SimpleHTTPRequestHandler):
+    """Request handler that serves the content of a log file."""
+
+    def _get_log_content(self) -> str:
+        with Path(LOG_FILE).open() as file:
+            return file.read()
+
+    def do_GET(self) -> None:  # noqa: N802
+        """Handle GET requests by reading the log file and returning its content."""
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write(self._get_log_content().encode("utf-8"))
+
+
+class LogServer:
+    """A simple log server that serves the content of a specified log file."""
+
+    @staticmethod
+    def run(port: int) -> None:
+        """Start the server."""
+        with Path(LOG_FILE).open("w") as file:
+            file.write("\n")
+        with socketserver.TCPServer(("", port), LogRequestHandler) as httpd:
+            sys.stdout.write(f"Server started in port {port}\n")
+            sys.stdout.flush()
+            httpd.serve_forever()
+
+
+if __name__ == "__main__":
+    LogServer.run(int("{{.appPort}}"))

@@ -1,15 +1,1 @@
----
-{{- with .Values}}
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{.pingPongAppServiceName}}
-spec:
-  type: ClusterIP
-  selector:
-    app: {{index .containerNames 0}}
-  ports:
-    - port: {{.pingPongAppClusterPort}}
-      protocol: TCP
-      targetPort: {{.pingPongAppPort}}
-{{- end}}
+../../../../../base_templates/templates/service.yaml

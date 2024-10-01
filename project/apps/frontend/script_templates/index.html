@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontpage</title>
+</head>
+
+<body>
+    <h1>Todo List</h1>
+    <ul id="todoList">
+    </ul>
+    <script src="{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}"></script>
+    <form action="/{{index .apps.backend.containerNames 0}}" method="post"
+        onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
+        <input type="text" name="TodoItem" placeholder="uusi itemi" required>
+        <button type="submit">Submit</button>
+    </form>
+    <h2>Embedded Image</h2>
+    <img src="{{.sharedVolumeMountPath}}/{{.jobs.picturefetcher.randomPictureFileName}}" alt="Embedded Image">
+</body>
+
+</html>

@@ -1,0 +1,15 @@
+---
+containerNames:
+  - frontend
+serverIndexFile: index.html
+fetchTodosScriptFile: fetchTodos.js
+serviceName: frontend-svc
+clusterPort: 1010
+appPort: 3010
+dependencyValues:
+  apps:
+    backend:
+      - containerNames
+  jobs:
+    picturefetcher:
+      - randomPictureFileName

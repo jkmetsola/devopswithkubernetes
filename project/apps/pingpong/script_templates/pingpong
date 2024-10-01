@@ -7,6 +7,8 @@ import socketserver
 import sys
 from pathlib import Path
 
+COUNTER_FILE = Path("{{.sharedVolumeMountPath}}") / "pong.txt"
+
 
 class PingPongRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Serves the content of a specified log file and increments a counter."""
@@ -44,5 +46,4 @@ class PingPongServer:
 
 
 if __name__ == "__main__":
-    COUNTER_FILE = "{{.sharedVolumeMountPath}}/{{.pongFileName}}"
-    PingPongServer.run(int("{{.pingPongAppPort}}"))
+    PingPongServer.run(int("{{.appPort}}"))

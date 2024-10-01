@@ -4,6 +4,8 @@
 #
 #    pip-compile /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 #
+debugpy==1.8.6
+    # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 isort==5.13.2
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 pathspec==0.12.1

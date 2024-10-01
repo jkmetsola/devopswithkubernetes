@@ -7,6 +7,7 @@ WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
 source "$WORKSPACE_FOLDER/.env"
 # shellcheck source=.devcontainer/setupEnv.sh
 source "${SETUP_ENV_PATH}" "false"
+PROJECT_DIR="${WORKSPACE_FOLDER}/${PROJECT_FOLDER_NAME}"
 
 create_cluster() {
     k3d cluster delete
@@ -22,7 +23,8 @@ create_cluster() {
 }
 
 get_pod_name() {
-    kubectl get pods -l app="$1" -o jsonpath="{.items[0].metadata.name}"
+    app_name="$(yq eval -e '.containerNames[0]' "${1}"/manifests/values.yaml)"
+    kubectl get pods -l app="$app_name" -o jsonpath="{.items[0].metadata.name}"
 }
 
 get_container_names() {
@@ -42,15 +44,29 @@ build_and_apply() {
     kubectl apply -f "${resolved_yaml}"
 }
 
+sorted_apps() {
+    file_count=$(find . -mindepth 2 -maxdepth 2 -regex '.*/[0-9][0-9]\.order' | wc -l)
+    dir_count=$(find . -mindepth 1 -maxdepth 1 -type d | wc -l)
+    if [[ $file_count -ne $dir_count ]]; then
+        echo "Error: The number of order files does not match the number of directories." >&2
+        exit 1
+    fi
+    find . -mindepth 2 -maxdepth 2 -regex '.*/[0-9][0-9]\.order' -print0 \
+    | xargs -0n 1 basename | sort \
+    | xargs -n 1 find . -name \
+    | xargs -n 1 dirname \
+    | xargs -n 1 basename
+}
+
 deploy_volumes() {
-    mapfile -t VOLUME_NAMES < <(ls)
+    mapfile -t VOLUME_NAMES < <(sorted_apps)
     for volume in "${VOLUME_NAMES[@]}"; do
         kubectl apply -f "$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${volume}")"
     done
 }
 
 deploy_cronjobs() {
-    mapfile -t JOB_NAMES < <(ls)
+    mapfile -t JOB_NAMES < <(sorted_apps)
     for job in "${JOB_NAMES[@]}"; do
         build_and_apply "$job"
         job_name="${job}-run"
@@ -62,7 +78,7 @@ deploy_cronjobs() {
 }
 
 deploy_apps() {
-    mapfile -t APP_NAMES < <(ls)
+    mapfile -t APP_NAMES < <(sorted_apps)
     for app in "${APP_NAMES[@]}"; do
         build_and_apply "$app"
         pod_name="$(get_pod_name "${app}")"
@@ -80,14 +96,19 @@ verify_lb_connectivity(){
     echo " OK"
 }
 
+if [[ -n "${DEBUG:-}" ]]; then
+    set -x
+    export DEBUG
+fi
+
 if [[ -n "${1:-}" ]]; then
     cd "${WORKSPACE_FOLDER}/$1/.."
     build_and_apply "$(basename "${WORKSPACE_FOLDER}/$1")"
 else
     create_cluster
-    (cd "${WORKSPACE_FOLDER}"/project/volumes && deploy_volumes)
-    (cd "${WORKSPACE_FOLDER}"/project/jobs && deploy_cronjobs)
-    (cd "${WORKSPACE_FOLDER}"/project/apps && deploy_apps)
+    (cd "${PROJECT_DIR}"/volumes && deploy_volumes)
+    (cd "${PROJECT_DIR}"/jobs && deploy_cronjobs)
+    (cd "${PROJECT_DIR}"/apps && deploy_apps)
     kubectl cluster-info
     kubectl get svc,ing
     verify_lb_connectivity

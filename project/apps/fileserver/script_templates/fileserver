@@ -6,7 +6,7 @@ import sys
 from http.server import SimpleHTTPRequestHandler
 
 
-class PingPongServer:
+class FileServer:
     """Server to handle ping-pong requests."""
 
     @staticmethod
@@ -19,4 +19,4 @@ class PingPongServer:
 
 
 if __name__ == "__main__":
-    PingPongServer.run(int("{{.fileserverAppPort}}"))
+    FileServer.run(int("{{.appPort}}"))

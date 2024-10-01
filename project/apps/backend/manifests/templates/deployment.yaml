@@ -52,4 +52,7 @@ spec:
               - key: {{index .containerNames 0}}
                 path: {{index .containerNames 0}}
                 mode: 0755
+              - key: {{index .containerNames 1}}
+                path: {{index .containerNames 1}}
+                mode: 0755
 {{- end}}

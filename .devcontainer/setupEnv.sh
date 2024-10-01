@@ -35,6 +35,8 @@ define_global_vars(){
   export PACKAGES_DEVLINT=${WORKSPACE_FOLDER}/${IMAGEFILES_DIR}/${PACKAGES_DEVLINT_FILENAME}
   export CONFIGURE_DEVUSER=${WORKSPACE_FOLDER}/${IMAGEFILES_DIR}/${CONFIGURE_DEVUSER_FILENAME}
   export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
+  export PROJECT_FOLDER_NAME=project
+  export BASE_TEMPLATES_FOLDER_NAME=base_templates
 }
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"

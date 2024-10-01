@@ -35,16 +35,12 @@ spec:
               port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
+            timeoutSeconds: 5
           volumeMounts:
-            - name: {{.sharedPersistentVolumeName}}
-              mountPath: {{.sharedVolumeMountPath}}
             - name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true
       volumes:
-        - name: {{.sharedPersistentVolumeName}}
-          persistentVolumeClaim:
-            claimName: {{.sharedPersistentVolumeClaimName}}
         - name: {{.tempStartupScriptVolumeName}}
           configMap:
             name: {{index .containerNames 0}}
@@ -52,4 +48,8 @@ spec:
               - key: {{index .containerNames 0}}
                 path: {{index .containerNames 0}}
                 mode: 0755
+              - key: {{.serverIndexFile}}
+                path: {{.serverIndexFile}}
+              - key: {{.fetchTodosScriptFile}}
+                path: {{.fetchTodosScriptFile}}
 {{- end}}

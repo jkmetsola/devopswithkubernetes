@@ -102,13 +102,19 @@ lint_sh_files() {
 }
 
 lint_helm_templates() {
-    find "${WORKSPACE_FOLDER}"/project -mindepth 2 -maxdepth 2 -type d -print0 \
+    find "${WORKSPACE_FOLDER}"/"${PROJECT_FOLDER_NAME}" -mindepth 2 -maxdepth 2 -type d -print0 \
         | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
         | xargs yamllint
 }
 
 lint_other_yaml_files() {
-    find . -type f -name '*.yaml' ! -path './project/*' -print0 | xargs -0 yamllint
+    find . -type f -name '*.yaml' \
+        \( \
+        ! -path "./${PROJECT_FOLDER_NAME}/*" \
+        -a \
+        ! -path "./${BASE_TEMPLATES_FOLDER_NAME}/*" \
+        \) \
+        -print0 | xargs -0 yamllint
 }
 
 lint_docker_files() {
@@ -116,12 +122,28 @@ lint_docker_files() {
 }
 
 lint_html_files(){
-    docker build \
-        -t htmlhint-linter \
+    tag="htmlhint-linter"
+    docker build --quiet \
+        -t "${tag}" \
         -f "${WORKSPACE_FOLDER}/.devcontainer/git-hooks/htmlhint/Dockerfile" \
-        "${WORKSPACE_FOLDER}"
-    find . -type f -name '*.html' -print0 | xargs -0 -t -I {} -n 1 \
-        docker run --rm htmlhint-linter /workspace/{}
+        "${WORKSPACE_FOLDER}" | grep --quiet "^sha256:"
+
+    find . -type f -name '*.html' -print0 \
+    | xargs -0 -n 1 docker run --rm "${tag}" 2>&1 \
+    | grep -v "The \`punycode\` module is deprecated" \
+    | grep -v "Use \`node --trace-deprecation ...\` to show where the warning was created" \
+    | grep -v "Scanned [^0] files, no errors found"
+}
+
+lint_js_files(){
+    tag="eslint-linter"
+    docker build --quiet \
+        -t "${tag}" \
+        -f "${WORKSPACE_FOLDER}/.devcontainer/git-hooks/eslint/Dockerfile" \
+        "${WORKSPACE_FOLDER}" | grep --quiet "^sha256:"
+
+    find . -type f -name '*.js' -print0 \
+    | xargs -0 -n 1 docker run --rm "${tag}"
 }
 
 check_whitespace_error
@@ -135,3 +157,4 @@ lint_helm_templates
 lint_other_yaml_files
 lint_docker_files
 lint_html_files
+lint_js_files
