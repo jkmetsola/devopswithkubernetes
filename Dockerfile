@@ -6,26 +6,25 @@ FROM $BASE_IMAGE AS main-build
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
 WORKDIR /tmp
-ARG IMAGEFILES_DIR
-COPY $IMAGEFILES_DIR .
+COPY imagefiles /tmp/imagefiles
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r "imagefiles/requirements.txt"
 ENTRYPOINT [ "/bin/bash", "-c" ]
 
 # Stage 2: Dev tests build
 FROM main-build AS dev-tests-build
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 
-ARG PACKAGES_DEVLINT_FILENAME
+ARG PACKAGES_DEVLINT_FILE
 
 RUN apt-get update && \
-    xargs -a "$PACKAGES_DEVLINT_FILENAME" apt-get install --no-install-recommends -y && \
+    xargs -a "$PACKAGES_DEVLINT_FILE" apt-get install --no-install-recommends -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    ./no-apt-packages-devlint.sh
+    imagefiles/no-apt-packages-devlint.sh && \
+    pip install --no-cache-dir -r imagefiles/requirements-pip-tools.txt && \
+    pip install --no-cache-dir -r imagefiles/requirements-dev.txt
 
-RUN pip install --no-cache-dir -r requirements-pip-tools.txt && \
-    pip install --no-cache-dir -r requirements-dev.txt
 ENTRYPOINT [ "/bin/bash", "-c" ]
 
 # Stage 3: Dev-env build: This stage is used as development environment.
@@ -36,18 +35,18 @@ SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
 ARG HOST_DOCKER_GID
 ARG HOST_UID
 ARG HOST_GID
-ARG PACKAGES_DEVENV_FILENAME
-ARG REPOS_DEVENV_FILENAME
+ARG REPOS_DEVENV_FILE
+ARG PACKAGES_DEVENV_FILE
 ARG DEVUSER
-ARG CONFIGURE_DEVUSER_FILENAME
+ARG CONFIGURE_DEVUSER_FILE
 
-RUN ./${REPOS_DEVENV_FILENAME} && \
+RUN ./${REPOS_DEVENV_FILE} && \
     apt-get update && \
-    xargs -a "$PACKAGES_DEVENV_FILENAME" apt-get install --no-install-recommends -y && \
+    xargs -a "$PACKAGES_DEVENV_FILE" apt-get install --no-install-recommends -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    ./no-apt-packages-devenv.sh && \
-    ./${CONFIGURE_DEVUSER_FILENAME} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
+    imagefiles/no-apt-packages-devenv.sh && \
+    ./${CONFIGURE_DEVUSER_FILE} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
 
 USER "$DEVUSER"
 

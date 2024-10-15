@@ -1,36 +1,12 @@
 {
     "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [
-        "project",
-        "index.html",
-        "launch.json",
-        "requirements-dev.txt"
     ],
     "permanent": [
-        "01.order",
-        "02.order",
-        "03.order",
-        "04.order",
-        "05.order",
-        "requirements.in",
-        "random-string-printer",
-        "fileserver",
-        "random-picture-fetcher",
-        "pingpong",
-        "backend",
-        "backend-debug",
-        "frontend",
-        "global-values.yaml",
-        "cronJob.yaml",
-        "persistentVolume.yaml",
-        "persistentVolumeClaim.yaml",
-        "values.yaml",
-        "deployment.yaml",
-        "service.yaml",
-        "ingress.yaml",
+        ".vscode/launch.json",
         "Dockerfile",
-        ".shellcheckrc",
-        "Chart.yaml",
-        ".gitignore",
-        "setupEnv.sh"
+        ".devcontainer/grep_tool/logger.py"
+    ],
+    "patterns": [
+        "^.*/__init__.py$"
     ]
 }

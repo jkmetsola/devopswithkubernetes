@@ -4,16 +4,18 @@
         "dockerfile": "${localWorkspaceFolder}/Dockerfile",
         "context": "${localWorkspaceFolder}",
         "args": {
+            "BASE_IMAGE": "python:3.11.9-bookworm",
             "HOST_DOCKER_GID": "999",
             "HOST_UID": "1000",
             "HOST_GID": "1003",
-            "PACKAGES_DEVENV_FILENAME": "packages-devenv.txt",
-            "PACKAGES_DEVLINT_FILENAME": "packages-devlint.txt",
-            "REPOS_DEVENV_FILENAME": "repos-devenv.sh",
-            "IMAGEFILES_DIR": "imagefiles",
-            "BASE_IMAGE": "python:3.11.9-bookworm",
-            "DEVUSER": "devroot",
-            "CONFIGURE_DEVUSER_FILENAME": "configure-devuser.sh"
+            "PACKAGES_DEVENV_FILE": "imagefiles/packages-devenv.txt",
+            "PACKAGES_DEVLINT_FILE": "imagefiles/packages-devlint.txt",
+            "REQUIREMENTS_FILE": "imagefiles/requirements.txt",
+            "REQUIREMENTS_TOOLS_FILE": "imagefiles/requirements-pip-tools.txt",
+            "REQUIREMENTS_DEV_FILE": "imagefiles/requirements-dev.txt",
+            "REPOS_DEVENV_FILE": "imagefiles/repos-devenv.sh",
+            "CONFIGURE_DEVUSER_FILE": "imagefiles/configure-devuser.sh",
+            "DEVUSER": "devroot"
         }
     },
     "workspaceFolder": "/dev-env/${localWorkspaceFolderBasename}",
