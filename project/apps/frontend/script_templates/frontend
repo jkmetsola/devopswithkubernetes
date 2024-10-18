@@ -9,9 +9,11 @@ from pathlib import Path
 
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
+    JS_SCRIPT_PATH = "{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}"
+
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the log file and returning its content."""
-        if self.path == "{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}":
+        if self.path == self.JS_SCRIPT_PATH:
             self._handle_scriptfile()
         else:
             self._handle_frontpage()
@@ -28,7 +30,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
         self.send_response(200)
         self.send_header("Content-type", "application/javascript")
         self.end_headers()
-        script_file = Path("{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}")
+        script_file = Path(self.JS_SCRIPT_PATH)
         with script_file.open("r") as file:
             self.wfile.write(file.read().encode("utf-8"))
 

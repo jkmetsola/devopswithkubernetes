@@ -7,20 +7,6 @@ WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
 source "$WORKSPACE_FOLDER/.env"
 # shellcheck source=.devcontainer/setupEnv.sh
 source "${SETUP_ENV_PATH}" "false"
-PROJECT_DIR="${WORKSPACE_FOLDER}/${PROJECT_FOLDER_NAME}"
-
-create_cluster() {
-    k3d cluster delete
-    k3d cluster create \
-        --host-alias 0.0.0.0:host.docker.internal \
-        --agents 2 \
-        --k3s-arg "--tls-san=host.docker.internal@server:0" \
-        --port 8081:80@loadbalancer
-    KUBE_API_ADDRESS="$(kubectl config view -o jsonpath='{.clusters[?(@.name=="k3d-k3s-default")].cluster.server}')"
-    PORT=$(echo "$KUBE_API_ADDRESS" | awk -F: '{print $NF}')
-    kubectl config set clusters.k3d-k3s-default.server https://host.docker.internal:"$PORT"
-    docker exec k3d-k3s-default-agent-0 mkdir -p /tmp/kube
-}
 
 get_pod_name() {
     app_name="$(yq eval -e '.containerNames[0]' "${1}"/manifests/values.yaml)"
@@ -40,9 +26,14 @@ build_images_for_app() {
 
 build_and_apply() {
     build_images_for_app "$1"
+    apply_manifests "$1"
+}
+
+apply_manifests() {
     resolved_yaml="$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${1}")"
     kubectl apply -f "${resolved_yaml}"
 }
+
 
 sorted_apps() {
     file_count=$(find . -mindepth 2 -maxdepth 2 -regex '.*/[0-9][0-9]\.order' | wc -l)
@@ -58,10 +49,10 @@ sorted_apps() {
     | xargs -n 1 basename
 }
 
-deploy_volumes() {
-    mapfile -t VOLUME_NAMES < <(sorted_apps)
-    for volume in "${VOLUME_NAMES[@]}"; do
-        kubectl apply -f "$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${volume}")"
+deploy_non_image_folders() {
+    mapfile -t OTHER_APPS < <(sorted_apps)
+    for other_app in "${OTHER_APPS[@]}"; do
+        apply_manifests "$other_app"
     done
 }
 
@@ -103,12 +94,27 @@ fi
 
 if [[ -n "${1:-}" ]]; then
     cd "${WORKSPACE_FOLDER}/$1/.."
-    build_and_apply "$(basename "${WORKSPACE_FOLDER}/$1")"
+    if ! build_and_apply "$(basename "${WORKSPACE_FOLDER}/$1")"; then
+        echo "Error: Failed to deploy $1" >&2
+        echo "Trying to only apply manifests..." >&2
+        apply_manifests "$1"
+    fi
 else
-    create_cluster
-    (cd "${PROJECT_DIR}"/volumes && deploy_volumes)
-    (cd "${PROJECT_DIR}"/jobs && deploy_cronjobs)
-    (cd "${PROJECT_DIR}"/apps && deploy_apps)
+    project_namespace="project"
+    kubectl delete namespace "$project_namespace" || true
+    kubectl create namespace "$project_namespace"
+    kubectl config set-context --current --namespace="$project_namespace"
+    (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
+    (cd "${PROJECT_FOLDER}"/jobs && deploy_cronjobs)
+    (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
+
+    project_other_namespace="project-other"
+    kubectl delete namespace "$project_other_namespace" || true
+    kubectl create namespace "$project_other_namespace"
+    kubectl config set-context --current --namespace="$project_other_namespace"
+    (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
+    (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
+
     kubectl cluster-info
     kubectl get svc,ing
     verify_lb_connectivity

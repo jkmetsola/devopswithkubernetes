@@ -41,17 +41,22 @@ lint_sh_files() {
 }
 
 lint_helm_templates() {
-    find "${WORKSPACE_FOLDER}"/"${PROJECT_FOLDER_NAME}" -mindepth 2 -maxdepth 2 -type d -print0 \
+    find "${PROJECT_FOLDER}" -mindepth 2 -maxdepth 2 -type d -print0 \
+        | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
+        | xargs yamllint
+    find "${PROJECT_OTHER_FOLDER}" -mindepth 2 -maxdepth 2 -type d -print0 \
         | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
         | xargs yamllint
 }
 
 lint_other_yaml_files() {
-    find . -type f -name '*.yaml' \
+    find "${WORKSPACE_FOLDER}" -type f -name '*.yaml' \
         \( \
-        ! -path "./${PROJECT_FOLDER_NAME}/*" \
+        ! -path "${PROJECT_FOLDER}/*" \
         -a \
-        ! -path "./${BASE_TEMPLATES_FOLDER_NAME}/*" \
+        ! -path "${PROJECT_OTHER_FOLDER}/*" \
+        -a \
+        ! -path "${BASE_TEMPLATES_FOLDER}/*" \
         \) \
         -print0 | xargs -0 yamllint
 }

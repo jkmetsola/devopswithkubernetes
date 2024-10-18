@@ -4,9 +4,12 @@
     "permanent": [
         ".vscode/launch.json",
         "Dockerfile",
-        ".devcontainer/grep_tool/logger.py"
+        ".devcontainer/grep_tool/logger.py",
+        "base_templates/templates/ingress.yaml"
     ],
     "patterns": [
-        "^.*/__init__.py$"
+        "^.*/__init__.py$",
+        ".*/manifests/.*",
+        ".*/script_templates/.*"
     ]
 }

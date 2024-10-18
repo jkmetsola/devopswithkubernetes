@@ -30,7 +30,13 @@ def exception_hook(
         tb = tb.tb_next
     frame = tb.tb_frame
     for var, val in frame.f_locals.items():
-        sys.stderr.write(f"{var} = {val}\n")
+        if var == "self":
+            for attr in dir(val):
+                if not attr.startswith("__"):
+                    value = getattr(val, attr)
+                    sys.stderr.write(f"{attr} = {value}\n")
+        else:
+            sys.stderr.write(f"{var} = {val}\n")
     traceback_txt = "".join(format_exception(exc_type, exc_value, exc_traceback))
     sys.stderr.write(traceback_txt)
     sys.exit(1)
@@ -69,16 +75,12 @@ class DependencyResolver:  # noqa: D101
             with self.dep_app_values_yaml(app_type, app).open() as f:
                 dep_value = yaml.safe_load(f)[key]
 
-            if self.dep_value_map.get(app_type, {}).get(app):
-                self.dep_value_map[app_type][app].update({key: dep_value})
-            else:
-                self.dep_value_map.update(
-                    {
-                        app_type: {
-                            app: {key: dep_value},
-                        }
-                    }
-                )
+            self.dep_value_map[app_type] = self.dep_value_map.get(app_type, {})
+            self.dep_value_map[app_type][app] = self.dep_value_map[app_type].get(
+                app, {}
+            )
+            self.dep_value_map[app_type][app][key] = dep_value
+
             if self.values_yaml.get(app_type, {}).get(app, {}).get(key):
                 msg = f"Same key defined in the values.yaml! {app_type}.{app}.{key}"
                 raise AssertionError(msg)

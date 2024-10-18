@@ -14,13 +14,31 @@ BACKEND_STORAGE_JSON = Path("{{.sharedVolumeMountPath}}") / "backendStorage.json
 class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Request handler that serves the content of a xxxxx file."""
 
+    IMAGEFILE_PATH = (
+        "{{.sharedVolumeMountPath}}/{{.jobs.picturefetcher.randomPictureFileName}}"
+    )
+
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the file and returning its content."""
+        if self.path == f"{self.IMAGEFILE_PATH}":
+            self._handle_imagefile()
+        else:
+            self._handle_storage()
+
+    def _handle_storage(self) -> None:
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
         with Path(BACKEND_STORAGE_JSON).open() as file:
             self.wfile.write(file.read().encode("utf-8"))
+
+    def _handle_imagefile(self) -> None:
+        self.send_response(200)
+        self.send_header("Content-type", "image/png")
+        self.end_headers()
+        image_file = Path(self.IMAGEFILE_PATH)
+        with image_file.open("rb") as file:
+            self.wfile.write(file.read())
 
     def do_POST(self) -> None:  # noqa: N802
         """Handle POST requests by adding the content to the file."""

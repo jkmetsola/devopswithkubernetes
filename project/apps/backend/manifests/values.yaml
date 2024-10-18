@@ -3,5 +3,10 @@ containerNames:
   - backend
   - backend-debug
 serviceName: backend-svc
+ingressClassName: backend-ingress-class
 clusterPort: 1015
 appPort: 3015
+dependencyValues:
+  jobs:
+    picturefetcher:
+      - randomPictureFileName
