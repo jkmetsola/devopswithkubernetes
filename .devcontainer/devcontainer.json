@@ -23,6 +23,7 @@
         "source=${localWorkspaceFolder},target=/dev-env/${localWorkspaceFolderBasename},type=bind",
         "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
         "source=/home/${localEnv:USER}/.ssh,target=/home/devroot/.ssh,type=bind",
+        "source=/home/${localEnv:USER}/.age,target=/home/devroot/.age,type=bind",
         "source=/home/${localEnv:USER}/.bash_history,target=/home/devroot/.bash_history,type=bind"
     ],
     "updateRemoteUserUID": false,

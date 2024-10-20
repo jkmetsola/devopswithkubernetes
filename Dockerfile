@@ -1,6 +1,19 @@
+ARG BASE_IMAGE
+### BUILD STAGES:
+FROM ghcr.io/sigstore/cosign/cosign:v2.4.1 AS cosign-bin
+
+# hadolint ignore=DL3006
+FROM $BASE_IMAGE AS sops-bin
+WORKDIR /tmp
+COPY --from=cosign-bin /ko-app/cosign /usr/local/bin/cosign
+COPY imagefiles /tmp/imagefiles
+RUN imagefiles/install-sops.sh
+
+
+### MAIN STAGES:
 
 # Stage 1: Main Build
-ARG BASE_IMAGE
+
 # hadolint ignore=DL3006
 FROM $BASE_IMAGE AS main-build
 SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
@@ -47,6 +60,8 @@ RUN ./${REPOS_DEVENV_FILE} && \
     rm -rf /var/lib/apt/lists/* && \
     imagefiles/no-apt-packages-devenv.sh && \
     ./${CONFIGURE_DEVUSER_FILE} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
+
+COPY --from=sops-bin /usr/local/bin/sops /usr/local/bin/sops
 
 USER "$DEVUSER"
 
