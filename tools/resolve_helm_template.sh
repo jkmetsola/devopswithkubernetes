@@ -13,6 +13,8 @@ APP_DIR="$1"
 APP_NAME="$(basename "$APP_DIR")"
 MANIFESTS_DIR="$1"/manifests
 APP_FILES_DIR="$1"/script_templates
+APP_ENV_FILE="$1"/.env
+
 TEMP_DEP_VARS="$1"/manifests/dependency-values.yaml
 
 check_for_new_helm_errors() {
@@ -24,23 +26,53 @@ check_for_new_helm_errors() {
 
 cleanup() {
     check_for_new_helm_errors
-    rm -f "${TEMP_DEP_VARS}" "${temp_production_yaml}" "${temp_error_log}" \
-    "${MANIFESTS_DIR}/templates/configMap.yaml" "${MANIFESTS_DIR}/Chart.yaml"
+    rm -f \
+    "${TEMP_DEP_VARS}" \
+    "${temp_production_yaml}" \
+    "${temp_error_log}" \
+    "${MANIFESTS_DIR}/templates/configMap.yaml" \
+    "${MANIFESTS_DIR}/Chart.yaml" \
+    "${FULL_CONFIGMAP_TMP}"
+}
+
+build_configmap_if_needed() {
+    FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
+    if [[ -f "$APP_ENV_FILE" || -d "$APP_FILES_DIR" ]]; then
+        build_configmap_template > "${MANIFESTS_DIR}/templates/configMap.yaml"
+    fi
 }
 
 build_configmap_template() {
-    if [[ -d "$APP_FILES_DIR" ]]; then
-        {
-            echo '---'
-            echo '{{- with .Values}}'
-            first_container_name="$(yq eval -e '.containerNames[0]' "$APP_DIR"/manifests/values.yaml)"
-            kubectl create configmap "${first_container_name}" \
-                --dry-run=client \
-                --from-file "$APP_FILES_DIR" \
-                -o yaml
-            echo '{{- end}}'
-        } > "${MANIFESTS_DIR}/templates/configMap.yaml"
+    first_container_name="$(yq eval -e '.containerNames[0]' "$APP_DIR"/manifests/values.yaml)"
+    if [[ -f "$APP_ENV_FILE" ]]; then
+        configmap_env_tmp="$(mktemp --suffix .yaml)"
+        kubectl create configmap "${first_container_name}" \
+            --dry-run=client \
+            --from-env-file "$APP_ENV_FILE" \
+            -o yaml > "${configmap_env_tmp}"
     fi
+
+    if [[ -d "$APP_FILES_DIR" ]]; then
+        configmap_tmp="$(mktemp --suffix .yaml)"
+        kubectl create configmap "${first_container_name}" \
+            --dry-run=client \
+            --from-file "$APP_FILES_DIR" \
+            -o yaml > "${configmap_tmp}"
+    fi
+
+    if [[ -f "$APP_ENV_FILE" && -d "$APP_FILES_DIR" ]]; then
+        yq -n "load(\"${configmap_tmp}\") * load(\"${configmap_env_tmp}\")" \
+            > "${FULL_CONFIGMAP_TMP}"
+    elif [[ ! -f "$APP_ENV_FILE" && -d "$APP_FILES_DIR" ]]; then
+        mv "${configmap_tmp}" "${FULL_CONFIGMAP_TMP}"
+    elif [[ -f "$APP_ENV_FILE" && ! -d "$APP_FILES_DIR" ]]; then
+        mv "${configmap_env_tmp}" "${FULL_CONFIGMAP_TMP}"
+    fi
+
+    echo '---'
+    echo '{{- with .Values}}'
+    cat "${FULL_CONFIGMAP_TMP}"
+    echo '{{- end}}'
 }
 
 create_chart_file() {
@@ -78,5 +110,5 @@ fi
 
 resolve_dependency_values
 create_chart_file
-build_configmap_template
+build_configmap_if_needed
 resolve_template

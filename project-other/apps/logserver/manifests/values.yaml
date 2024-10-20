@@ -8,6 +8,7 @@ logFileVolumeName: logfile-volume
 serviceName: logserver-svc
 clusterPort: 1030
 appPort: 3030
+informationFile: information.txt
 dependencyValues:
   apps:
     pingpong:

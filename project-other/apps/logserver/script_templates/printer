@@ -2,6 +2,7 @@
 
 """Generates and prints random strings."""
 
+import os
 import secrets
 import string
 import time
@@ -29,8 +30,14 @@ class RandomStringPrinter:
                 "Pings / Pongs: " + str(resp.json()["pongs"])
             )
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+            with Path.open("{{.tempScriptVolumeMountPath}}/{{.informationFile}}") as f:
+                contents = f.read()
             with Path(logfile).open("w") as f:
-                f.write(f"{timestamp} - {random_string}\n")
+                f.write(
+                    f"{os.environ['MESSAGE']}\n"
+                    f"file contents: {contents}\n"
+                    f"{timestamp} - {random_string}\n"
+                )
             time.sleep(5)
 
 

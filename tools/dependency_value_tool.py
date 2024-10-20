@@ -33,8 +33,11 @@ def exception_hook(
         if var == "self":
             for attr in dir(val):
                 if not attr.startswith("__"):
-                    value = getattr(val, attr)
-                    sys.stderr.write(f"{attr} = {value}\n")
+                    try:
+                        value = getattr(val, attr)
+                        sys.stderr.write(f"{attr} = {value}\n")
+                    except Exception:  # noqa: BLE001, S110
+                        pass
         else:
             sys.stderr.write(f"{var} = {val}\n")
     traceback_txt = "".join(format_exception(exc_type, exc_value, exc_traceback))

@@ -54,6 +54,12 @@ spec:
             - "/bin/bash"
             - "-c"
             - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 1}}"
+          env:
+            - name: MESSAGE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{index .containerNames 0}}
+                  key: MESSAGE
           readinessProbe:
             exec:
               command:
@@ -75,4 +81,6 @@ spec:
               - key: {{index .containerNames 1}}
                 path: {{index .containerNames 1}}
                 mode: 0755
+              - key: {{.informationFile}}
+                path: {{.informationFile}}
 {{- end}}

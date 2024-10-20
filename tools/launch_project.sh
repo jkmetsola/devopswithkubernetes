@@ -78,7 +78,7 @@ deploy_apps() {
     done
 }
 
-verify_lb_connectivity(){
+verify_frontpage_connectivity(){
     echo -n "Waiting that host.docker.internal:8081 can be reached ..."
     until curl --silent --fail host.docker.internal:8081 > /dev/null; do
         echo -n "."
@@ -87,19 +87,7 @@ verify_lb_connectivity(){
     echo " OK"
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
-if [[ -n "${1:-}" ]]; then
-    cd "${WORKSPACE_FOLDER}/$1/.."
-    if ! build_and_apply "$(basename "${WORKSPACE_FOLDER}/$1")"; then
-        echo "Error: Failed to deploy $1" >&2
-        echo "Trying to only apply manifests..." >&2
-        apply_manifests "$1"
-    fi
-else
+launch_project() {
     project_namespace="project"
     kubectl delete namespace "$project_namespace" || true
     kubectl create namespace "$project_namespace"
@@ -107,15 +95,43 @@ else
     (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
     (cd "${PROJECT_FOLDER}"/jobs && deploy_cronjobs)
     (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
+    verify_frontpage_connectivity
+}
 
+launch_project_other(){
     project_other_namespace="project-other"
     kubectl delete namespace "$project_other_namespace" || true
     kubectl create namespace "$project_other_namespace"
     kubectl config set-context --current --namespace="$project_other_namespace"
     (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
     (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
+}
 
+launch_projects() {
+    if [[ "${1:-}" == "project" ]]; then
+        launch_project
+    elif [[ "${1:-}" == "project-other" ]]; then
+        launch_project_other
+    fi
     kubectl cluster-info
     kubectl get svc,ing
-    verify_lb_connectivity
+}
+
+if [[ -n "${DEBUG:-}" ]]; then
+    set -x
+    export DEBUG
+fi
+
+if [[ "${1}" == "project" || "${1}" == "project-other" ]]; then
+    launch_projects "$1"
+    exit 0
+fi
+
+if [[ -n "${1:-}" ]]; then
+    cd "${WORKSPACE_FOLDER}/$1/.."
+    if ! build_and_apply "$(basename "$1")"; then
+        echo "Error: Failed to deploy $1" >&2
+        echo "Trying to only apply manifests..." >&2
+        apply_manifests "$(basename "$1")"
+    fi
 fi
