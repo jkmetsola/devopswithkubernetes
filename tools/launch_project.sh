@@ -17,10 +17,18 @@ get_container_names() {
     yq eval -e '.containerNames[]' "${1}"/manifests/values.yaml
 }
 
+get_image_sha() {
+    docker inspect --format='{{.Id}}' "$1"
+}
+
 build_images_for_app() {
     for container in $(get_container_names "${1}"); do
-        docker build -f "${1}"/Dockerfile --target "${container}" -t "${container}:latest" "${1}"
-        k3d image import "${container}:latest"
+        image_tag="${container}:latest"
+        image_sha="$(get_image_sha "${image_tag}")"
+        docker build -f "${1}"/Dockerfile --target "${container}" -t "${image_tag}" "${1}"
+        if [[ "${image_sha}" != "$(get_image_sha "${image_tag}")" ]]; then
+            k3d image import "${container}:latest"
+        fi
     done
 }
 
@@ -29,11 +37,22 @@ build_and_apply() {
     apply_manifests "$1"
 }
 
+apply_secrets() {
+    secrets_file="${PWD}/${1}/manifests/secret.enc.yaml"
+    secrets_file_decrypted="${PWD}/${1}/manifests/secret.yaml"
+    if [[ -f "$secrets_file" ]]; then
+        if [[ -f "$secrets_file_decrypted" ]]; then
+            "$WORKSPACE_FOLDER"/tools/age_key_tool.sh "$secrets_file_decrypted"
+        fi
+        "$WORKSPACE_FOLDER"/tools/age_key_tool.sh "$secrets_file" | kubectl apply -f -
+    fi
+}
+
 apply_manifests() {
     resolved_yaml="$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${1}")"
     kubectl apply -f "${resolved_yaml}"
+    apply_secrets "$1"
 }
-
 
 sorted_apps() {
     file_count=$(find . -mindepth 2 -maxdepth 2 -regex '.*/[0-9][0-9]\.order' | wc -l)
@@ -60,11 +79,9 @@ deploy_cronjobs() {
     mapfile -t JOB_NAMES < <(sorted_apps)
     for job in "${JOB_NAMES[@]}"; do
         build_and_apply "$job"
-        job_name="${job}-run"
-        job_fullname=job/"${job_name}"
-        kubectl create job --from=cronjob/"${job}" "${job_name}"
-        kubectl wait --for=condition=Complete --timeout=60s "${job_fullname}"
-        kubectl logs "${job_fullname}"
+        kubectl create job --from=cronjob/"${job}" "${job}"-run
+        kubectl wait --all --for=condition=Complete --timeout=60s job -l job="${job}"
+        kubectl logs -l job="${job}"
     done
 }
 
@@ -72,10 +89,13 @@ deploy_apps() {
     mapfile -t APP_NAMES < <(sorted_apps)
     for app in "${APP_NAMES[@]}"; do
         build_and_apply "$app"
-        pod_name="$(get_pod_name "${app}")"
-        kubectl wait --for=condition=Ready --timeout=30s pod/"${pod_name}"
-        kubectl logs "${pod_name}"
+        wait_for_pod "$app"
     done
+}
+
+wait_for_pod() {
+    kubectl wait --all --for=condition=Ready --timeout=30s pod -l app="$1"
+    kubectl logs --all-containers -l app="$1"
 }
 
 verify_frontpage_connectivity(){
@@ -87,51 +107,49 @@ verify_frontpage_connectivity(){
     echo " OK"
 }
 
-launch_project() {
-    project_namespace="project"
-    kubectl delete namespace "$project_namespace" || true
-    kubectl create namespace "$project_namespace"
-    kubectl config set-context --current --namespace="$project_namespace"
-    (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
-    (cd "${PROJECT_FOLDER}"/jobs && deploy_cronjobs)
-    (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
-    verify_frontpage_connectivity
-}
-
-launch_project_other(){
-    project_other_namespace="project-other"
-    kubectl delete namespace "$project_other_namespace" || true
-    kubectl create namespace "$project_other_namespace"
-    kubectl config set-context --current --namespace="$project_other_namespace"
-    (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
-    (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
+init_project(){
+    kubectl delete namespace "$1" || true
+    kubectl create namespace "$1"
+    kubectl config set-context --current --namespace="$1"
 }
 
 launch_projects() {
     if [[ "${1:-}" == "project" ]]; then
-        launch_project
+        (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
+        (cd "${PROJECT_FOLDER}"/jobs && deploy_cronjobs)
+        (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
+        verify_frontpage_connectivity
     elif [[ "${1:-}" == "project-other" ]]; then
-        launch_project_other
+        (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
+        (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
     fi
     kubectl cluster-info
     kubectl get svc,ing
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
-if [[ "${1}" == "project" || "${1}" == "project-other" ]]; then
-    launch_projects "$1"
-    exit 0
-fi
-
-if [[ -n "${1:-}" ]]; then
-    cd "${WORKSPACE_FOLDER}/$1/.."
-    if ! build_and_apply "$(basename "$1")"; then
-        echo "Error: Failed to deploy $1" >&2
-        echo "Trying to only apply manifests..." >&2
-        apply_manifests "$(basename "$1")"
+main() {
+    if [[ -n "${DEBUG:-}" ]]; then
+        set -x
+        export DEBUG
     fi
-fi
+
+    if [[ "${1}" == "project" || "${1}" == "project-other" ]]; then
+        init_project "$1"
+        launch_projects "$1"
+        exit 0
+    fi
+
+    if [[ -n "${1:-}" ]]; then
+        app="$(basename "$1")"
+        cd "${WORKSPACE_FOLDER}/$1/.."
+        if ! build_and_apply "$app"; then
+            echo "Error: Failed to deploy $1" >&2
+            echo "Trying to only apply manifests..." >&2
+            apply_manifests "$app"
+        fi
+        kubectl delete --now=true pod -l app="$app"
+        wait_for_pod "$app"
+    fi
+}
+
+main "$1"

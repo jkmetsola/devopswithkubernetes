@@ -10,6 +10,8 @@ charset-normalizer==3.4.0
     # via requests
 idna==3.10
     # via requests
+psycopg2==2.9.10
+    # via -r /dev-env/devopswithkubernetes/imagefiles/requirements.in
 requests==2.32.3
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements.in
 urllib3==2.2.3

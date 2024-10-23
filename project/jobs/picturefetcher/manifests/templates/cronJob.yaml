@@ -9,6 +9,9 @@ spec:
   jobTemplate:
     spec:
       template:
+        metadata:
+          labels:
+            job: {{index .containerNames 0}}
         spec:
           restartPolicy: OnFailure
           containers:

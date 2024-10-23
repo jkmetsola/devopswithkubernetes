@@ -1,0 +1,15 @@
+---
+{{- with .Values}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.serviceName}}
+spec:
+  clusterIP: None
+  selector:
+    app: {{index .containerNames 0}}
+  ports:
+    - port: {{.clusterPort}}
+      protocol: TCP
+      targetPort: {{.appPort}}
+{{- end}}

@@ -16,4 +16,7 @@
         "global-values.yaml"
     ],
     "yaml.format.bracketSpacing": false,
+    "files.associations": {
+        //"*.yaml": "yaml"
+    }
 }

@@ -1,10 +1,11 @@
 ---
 {{- with .Values}}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{index .containerNames 0}}
 spec:
+  serviceName: {{.serviceName}}
   replicas: 1
   selector:
     matchLabels:
@@ -25,29 +26,26 @@ spec:
             requests:
               cpu: "100m"
               memory: "256Mi"
-          command:
-            - "/bin/bash"
-            - "-c"
-            - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
           envFrom:
             - secretRef:
-                name: {{index .apps.postgres.containerNames 0}}
+                name: {{index .containerNames 0}}
+            - configMapRef:
+                name: {{index .containerNames 0}}
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:
-            - name: {{.tempStartupScriptVolumeName}}
-              mountPath: {{.tempScriptVolumeMountPath}}
-              readOnly: true
-      volumes:
-        - name: {{.tempStartupScriptVolumeName}}
-          configMap:
-            name: {{index .containerNames 0}}
-            items:
-              - key: {{index .containerNames 0}}
-                path: {{index .containerNames 0}}
-                mode: 0755
+            - name: {{.dbVolumeName}}
+              mountPath: {{.dbMountPath}}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{.dbVolumeName}}
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 100Mi
 {{- end}}

@@ -3,32 +3,87 @@
 
 import http.server
 import json
+import os
 import socketserver
 import sys
-from pathlib import Path
 
-COUNTER_FILE = Path("{{.sharedVolumeMountPath}}") / "pong.txt"
+import psycopg2
+
+
+class DataBaseHandler:
+    """Database connection handler."""
+
+    def __init__(self) -> None:
+        """Initialise database connection."""
+        self.conn = psycopg2.connect(
+            host="{{.apps.postgres.serviceName}}",
+            port="{{.apps.postgres.appPort}}",
+            dbname="{{index .apps.postgres.containerNames 0}}",
+            user="{{index .apps.postgres.containerNames 0}}",
+            password=os.environ["POSTGRES_PASSWORD"],
+        )
+        if not self._table():
+            self._init_table()
+
+    def _init_table(self) -> None:
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE {{.dbCounterTableName}} (
+                    id SERIAL PRIMARY KEY,
+                    value INTEGER NOT NULL
+                );
+                """
+            )
+            cursor.execute(
+                "INSERT INTO {{.dbCounterTableName}} (id, value) VALUES ({{.dbCounterTableItemId}}, 0);"  # noqa: E501
+            )
+            self.conn.commit()
+
+    def _table(self) -> bool:
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT *
+                FROM INFORMATION_SCHEMA.TABLES
+                WHERE TABLE_NAME = '{{.dbCounterTableName}}';
+                """
+            )
+            return cursor.fetchone()
+
+    def increment_counter_value(self) -> None:  # noqa: D102
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE {{.dbCounterTableName}}
+                SET value = value + 1
+                WHERE id = {{.dbCounterTableItemId}};
+                """
+            )
+            self.conn.commit()
+
+    def get_counter_value(self) -> int:  # noqa: D102
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                SELECT value FROM {{.dbCounterTableName}}
+                WHERE id = {{.dbCounterTableItemId}};
+                """
+            )
+            return cursor.fetchone()[0]
 
 
 class PingPongRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Serves the content of a specified log file and increments a counter."""
-
-    def _get_counter_value(self) -> int:
-        with Path(COUNTER_FILE).open() as file:
-            return json.load(file)["counter"]
-
-    def _set_counter_value(self, value: int) -> None:
-        with Path(COUNTER_FILE).open("w") as file:
-            json.dump({"counter": value}, file)
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET request and serve the counter value."""
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"pongs": self._get_counter_value()})
+        response = json.dumps({"pongs": DB_CONNECTION.get_counter_value()})
         self.wfile.write(response.encode())
-        self._set_counter_value(self._get_counter_value() + 1)
+        DB_CONNECTION.increment_counter_value()
 
 
 class PingPongServer:
@@ -37,8 +92,6 @@ class PingPongServer:
     @staticmethod
     def run(port: int) -> None:
         """Start the server."""
-        with Path(COUNTER_FILE).open("w") as file:
-            json.dump({"counter": 0}, file)
         with socketserver.TCPServer(("", port), PingPongRequestHandler) as httpd:
             sys.stdout.write(f"Server started in port {port}\n")
             sys.stdout.flush()
@@ -46,4 +99,6 @@ class PingPongServer:
 
 
 if __name__ == "__main__":
+    DB_CONNECTION = DataBaseHandler()
+    DB_CONNECTION.increment_counter_value()
     PingPongServer.run(int("{{.appPort}}"))
