@@ -9,7 +9,7 @@ create_cluster() {
         --agents 2 \
         --k3s-arg "--tls-san=host.docker.internal@server:0" \
         --k3s-arg="--disable=traefik@server:0" \
-        --port 8081:80@loadbalancer \
+        --port 8083:80@loadbalancer \
         --api-port host.docker.internal:6550
     docker exec k3d-k3s-default-agent-0 mkdir -p /tmp/kube
     helm install --debug ingress-nginx ingress-nginx \

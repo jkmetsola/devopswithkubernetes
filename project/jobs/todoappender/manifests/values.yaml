@@ -1,0 +1,9 @@
+---
+containerNames:
+  - todoappender
+dependencyValues:
+  apps:
+    postgres:
+      - serviceName
+      - appPort
+      - containerNames

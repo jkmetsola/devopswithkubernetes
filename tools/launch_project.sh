@@ -18,7 +18,9 @@ get_container_names() {
 }
 
 get_image_sha() {
-    docker inspect --format='{{.Id}}' "$1"
+    if image_sha="$(docker inspect --format='{{.Id}}' "$1")"; then
+        echo "$image_sha"
+    fi
 }
 
 image_available() {
@@ -107,7 +109,7 @@ verify_frontpage_connectivity(){
 }
 
 init_project(){
-    kubectl delete namespace "$1" || true
+    kubectl delete namespace --now "$1" || true
     kubectl create namespace "$1"
     kubectl config set-context --current --namespace="$1"
 }

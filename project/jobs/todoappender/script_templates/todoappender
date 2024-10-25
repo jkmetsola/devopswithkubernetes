@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+
+
+class TodoAppender:
+    """Simple server tool."""
+
+    def __init__(self, db_connection):
+        self.db_connection = db_connection
+
+    def append_todo(self, new_todo_item: str) -> None:
+        """Append a new todo item to the database."""
+        self.db_connection.insert_todo(new_todo_item)
+
+    # https://en.wikipedia.org/wiki/Special:Random
