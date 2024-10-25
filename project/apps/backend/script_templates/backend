@@ -8,7 +8,31 @@ import socketserver
 import sys
 from pathlib import Path
 
-BACKEND_STORAGE_JSON = Path("{{.sharedVolumeMountPath}}") / "backendStorage.json"
+from dbhandler import DataBaseHandler
+
+
+class BackendDatabaseHandler(DataBaseHandler):  # noqa: D101
+    def _init_table(self) -> None:
+        with self.conn.cursor() as cursor:
+            cursor.execute(
+                """
+                CREATE TABLE {{.dbTableName}} (
+                    id SERIAL PRIMARY KEY,
+                    value TEXT NOT NULL
+                );
+                """
+            )
+            self.conn.commit()
+
+    def insert_todo(self, todo: str) -> None:  # noqa: D102
+        with self.conn.cursor() as cursor:
+            cursor.execute("INSERT INTO {{.dbTableName}} (value) VALUES (%s);", (todo,))
+            self.conn.commit()
+
+    def get_todos(self) -> list:  # noqa: D102
+        with self.conn.cursor() as cursor:
+            cursor.execute("SELECT value FROM {{.dbTableName}};")
+            return cursor.fetchall()
 
 
 class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
@@ -29,8 +53,7 @@ class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        with Path(BACKEND_STORAGE_JSON).open() as file:
-            self.wfile.write(file.read().encode("utf-8"))
+        self.wfile.write(json.dumps(DB_CONNECTION.get_todos()).encode("utf-8"))
 
     def _handle_imagefile(self) -> None:
         self.send_response(200)
@@ -48,11 +71,7 @@ class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
         post_data = self.rfile.read(int(self.headers["Content-Length"]))
         decoded_post_data = post_data.decode("utf-8")
         new_todo_item = decoded_post_data.split("=")[1]
-        with Path(BACKEND_STORAGE_JSON).open() as file:
-            data = json.load(file)
-        data.append(new_todo_item)
-        with Path(BACKEND_STORAGE_JSON).open("w+") as file:
-            json.dump(data, file)
+        DB_CONNECTION.insert_todo(new_todo_item)
         resp_data = {"message": "POST request received", "data": decoded_post_data}
         self.wfile.write(json.dumps(resp_data).encode("utf-8"))
 
@@ -61,9 +80,6 @@ class BackendServer:  # noqa: D101
     @staticmethod
     def run(port: int) -> None:
         """Start the server."""
-        if not Path(BACKEND_STORAGE_JSON).exists():
-            with Path(BACKEND_STORAGE_JSON).open("w") as file:
-                json.dump([], file)
         with socketserver.TCPServer(("", port), BackendRequestHandler) as httpd:
             sys.stdout.write(f"Server started in port {port}\n")
             sys.stdout.flush()
@@ -71,4 +87,5 @@ class BackendServer:  # noqa: D101
 
 
 if __name__ == "__main__":
+    DB_CONNECTION = BackendDatabaseHandler()
     BackendServer.run(int("{{.appPort}}"))

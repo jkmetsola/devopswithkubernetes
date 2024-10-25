@@ -54,6 +54,9 @@ build_configmap_template() {
 
     if [[ -d "$APP_FILES_DIR" ]]; then
         configmap_tmp="$(mktemp --suffix .yaml)"
+        # --from-file ignores symlinks, so we need to manually copy the files
+        # https://github.com/kubernetes/kubectl/blob/a499023/pkg/cmd/create/create_configmap.go#L54
+        "${SYMLINK_TOOL}" "$APP_FILES_DIR"
         kubectl create configmap "${first_container_name}" \
             --dry-run=client \
             --from-file "$APP_FILES_DIR" \

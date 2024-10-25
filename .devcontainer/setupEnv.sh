@@ -38,6 +38,9 @@ define_global_vars(){
   export PROJECT_FOLDER=${WORKSPACE_FOLDER}/project
   export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
   export BASE_TEMPLATES_FOLDER=${WORKSPACE_FOLDER}/base_templates
+  export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
+  export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh
+  export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
 }
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"

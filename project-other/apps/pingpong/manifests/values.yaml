@@ -4,7 +4,7 @@ containerNames:
 serviceName: pingpong-svc
 clusterPort: 1020
 appPort: 3020
-dbCounterTableName: counter
+dbTableName: counter
 dbCounterTableItemId: 1
 dependencyValues:
   apps:

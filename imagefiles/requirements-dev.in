@@ -2,3 +2,5 @@ ruff
 yamllint
 isort
 debugpy
+-r ./requirements-dbhandler.txt
+-r ./requirements-logserver.txt

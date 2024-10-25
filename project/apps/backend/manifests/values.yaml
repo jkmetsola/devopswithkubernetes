@@ -6,7 +6,13 @@ serviceName: backend-svc
 ingressClassName: backend-ingress-class
 clusterPort: 1015
 appPort: 3015
+dbTableName: todos
 dependencyValues:
   jobs:
     picturefetcher:
       - randomPictureFileName
+  apps:
+    postgres:
+      - serviceName
+      - appPort
+      - containerNames

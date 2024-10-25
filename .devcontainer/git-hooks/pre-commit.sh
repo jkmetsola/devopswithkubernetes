@@ -27,8 +27,9 @@ check_whitespace_error() {
 }
 
 check_linefeed_eof() {
-    git diff-index --cached --name-only --diff-filter d HEAD -- \
-    | xargs -L 1 --no-run-if-empty "${CHECK_LINEFEED}"
+    git diff-index --cached --name-only --diff-filter=d HEAD \
+        | xargs --no-run-if-empty -I {} find {} -type f \
+        | xargs -L 1 --no-run-if-empty "${CHECK_LINEFEED}"
 }
 
 lint_python_files() {
@@ -93,6 +94,7 @@ lint_js_files(){
         > "${temp_lintjs_log}" 2>&1
     if grep -Ev '^npm notice ' "${temp_lintjs_log}"; then
         echo "New erros found from lintjs." >&2
+        exit 1
     fi
 }
 
@@ -106,3 +108,6 @@ lint_other_yaml_files
 lint_docker_files
 lint_html_files
 lint_js_files
+
+${LAUNCH_PROJECT} "$(basename "${PROJECT_FOLDER}")"
+${LAUNCH_PROJECT} "$(basename "${PROJECT_OTHER_FOLDER}")"

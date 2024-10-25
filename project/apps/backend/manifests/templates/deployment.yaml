@@ -29,6 +29,9 @@ spec:
             - "/bin/bash"
             - "-c"
             - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
+          envFrom:
+            - secretRef:
+                name: {{index .apps.postgres.containerNames 0}}
           readinessProbe:
             httpGet:
               path: /
@@ -48,11 +51,5 @@ spec:
         - name: {{.tempStartupScriptVolumeName}}
           configMap:
             name: {{index .containerNames 0}}
-            items:
-              - key: {{index .containerNames 0}}
-                path: {{index .containerNames 0}}
-                mode: 0755
-              - key: {{index .containerNames 1}}
-                path: {{index .containerNames 1}}
-                mode: 0755
+            defaultMode: 0755
 {{- end}}

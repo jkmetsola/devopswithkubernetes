@@ -1,0 +1,8 @@
+---
+containerNames:
+  - postgres
+serviceName: postgres-svc
+clusterPort: 1050
+appPort: 5432
+dbMountPath: /var/lib/postgresql/data
+dbVolumeName: postgres-data-storage

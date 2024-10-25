@@ -3,59 +3,35 @@
 
 import http.server
 import json
-import os
 import socketserver
 import sys
 
-import psycopg2
+from dbhandler import DataBaseHandler
 
 
-class DataBaseHandler:
+class PingPongDataBaseHandler(DataBaseHandler):
     """Database connection handler."""
-
-    def __init__(self) -> None:
-        """Initialise database connection."""
-        self.conn = psycopg2.connect(
-            host="{{.apps.postgres.serviceName}}",
-            port="{{.apps.postgres.appPort}}",
-            dbname="{{index .apps.postgres.containerNames 0}}",
-            user="{{index .apps.postgres.containerNames 0}}",
-            password=os.environ["POSTGRES_PASSWORD"],
-        )
-        if not self._table():
-            self._init_table()
 
     def _init_table(self) -> None:
         with self.conn.cursor() as cursor:
             cursor.execute(
                 """
-                CREATE TABLE {{.dbCounterTableName}} (
+                CREATE TABLE {{.dbTableName}} (
                     id SERIAL PRIMARY KEY,
                     value INTEGER NOT NULL
                 );
                 """
             )
             cursor.execute(
-                "INSERT INTO {{.dbCounterTableName}} (id, value) VALUES ({{.dbCounterTableItemId}}, 0);"  # noqa: E501
+                "INSERT INTO {{.dbTableName}} (id, value) VALUES ({{.dbCounterTableItemId}}, 0);"  # noqa: E501
             )
             self.conn.commit()
-
-    def _table(self) -> bool:
-        with self.conn.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT *
-                FROM INFORMATION_SCHEMA.TABLES
-                WHERE TABLE_NAME = '{{.dbCounterTableName}}';
-                """
-            )
-            return cursor.fetchone()
 
     def increment_counter_value(self) -> None:  # noqa: D102
         with self.conn.cursor() as cursor:
             cursor.execute(
                 """
-                UPDATE {{.dbCounterTableName}}
+                UPDATE {{.dbTableName}}
                 SET value = value + 1
                 WHERE id = {{.dbCounterTableItemId}};
                 """
@@ -66,7 +42,7 @@ class DataBaseHandler:
         with self.conn.cursor() as cursor:
             cursor.execute(
                 """
-                SELECT value FROM {{.dbCounterTableName}}
+                SELECT value FROM {{.dbTableName}}
                 WHERE id = {{.dbCounterTableItemId}};
                 """
             )
@@ -99,6 +75,6 @@ class PingPongServer:
 
 
 if __name__ == "__main__":
-    DB_CONNECTION = DataBaseHandler()
+    DB_CONNECTION = PingPongDataBaseHandler()
     DB_CONNECTION.increment_counter_value()
     PingPongServer.run(int("{{.appPort}}"))

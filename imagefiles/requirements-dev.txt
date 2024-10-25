@@ -4,15 +4,35 @@
 #
 #    pip-compile /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 #
+certifi==2024.8.30
+    # via
+    #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
+    #   requests
+charset-normalizer==3.4.0
+    # via
+    #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
+    #   requests
 debugpy==1.8.7
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
+idna==3.10
+    # via
+    #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
+    #   requests
 isort==5.13.2
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
 pathspec==0.12.1
     # via yamllint
+psycopg2==2.9.10
+    # via -r /dev-env/devopswithkubernetes/imagefiles/./requirements-dbhandler.txt
 pyyaml==6.0.2
     # via yamllint
-ruff==0.7.0
+requests==2.32.3
+    # via -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
+ruff==0.7.1
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
+urllib3==2.2.3
+    # via
+    #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
+    #   requests
 yamllint==1.35.1
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
