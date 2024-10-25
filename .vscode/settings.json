@@ -17,6 +17,7 @@
     ],
     "yaml.format.bracketSpacing": false,
     "files.associations": {
+        "*.py.symlink": "python",
         //"*.yaml": "yaml"
     }
 }
