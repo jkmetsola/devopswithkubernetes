@@ -32,6 +32,8 @@ spec:
           envFrom:
             - secretRef:
                 name: {{index .apps.postgres.containerNames 0}}
+          ports:
+            - containerPort: {{.appPort}}
           readinessProbe:
             httpGet:
               path: /
@@ -42,6 +44,10 @@ spec:
             - name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsNonRoot: true
       volumes:
         - name: {{.tempStartupScriptVolumeName}}
           configMap:

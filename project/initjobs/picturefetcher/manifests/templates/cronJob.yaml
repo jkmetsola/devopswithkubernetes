@@ -31,9 +31,14 @@ spec:
               volumeMounts:
                 - name: {{.sharedPersistentVolumeName}}
                   mountPath: {{.sharedVolumeMountPath}}
+                  readOnly: false
                 - name: {{.tempStartupScriptVolumeName}}
                   mountPath: {{.tempScriptVolumeMountPath}}
                   readOnly: true
+              securityContext:
+                readOnlyRootFilesystem: true
+                runAsUser: 1000
+                runAsNonRoot: true
           volumes:
             - name: {{.sharedPersistentVolumeName}}
               persistentVolumeClaim:

@@ -4,7 +4,7 @@ async function fetchTodos() {
     const todoList = document.getElementById('todoList');
     todos.forEach(todo => {
         const listItem = document.createElement('li');
-        listItem.textContent = todo;
+        listItem.innerHTML = todo;
         todoList.appendChild(listItem);
     });
 }

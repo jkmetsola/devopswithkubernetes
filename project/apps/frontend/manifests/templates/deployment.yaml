@@ -29,6 +29,8 @@ spec:
             - "/bin/bash"
             - "-c"
             - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
+          ports:
+            - containerPort: {{.appPort}}
           readinessProbe:
             httpGet:
               path: /
@@ -36,6 +38,10 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsNonRoot: true
           volumeMounts:
             - name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}

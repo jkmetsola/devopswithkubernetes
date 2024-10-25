@@ -1,3 +1,5 @@
+"""Provides a handler for database connections using psycopg2."""  # noqa: INP001
+
 import os
 
 import psycopg2

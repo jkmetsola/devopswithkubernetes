@@ -1,13 +1,8 @@
-FROM node:alpine3.19
+FROM pipelinecomponents/eslint:amd64-45dabb1
 
 WORKDIR /workspace
-
-# hadolint ignore=DL4006
-RUN npm init -y && \
-    npm pkg set 'name=linter' && \
-    yes | npm init @eslint/config@latest --config eslint-config-standard
 
 ARG WORKSPACE
 COPY $WORKSPACE /workspace
 
-ENTRYPOINT ["npx", "eslint", "--no-config-lookup"]
+ENTRYPOINT ["eslint", "--no-config-lookup"]

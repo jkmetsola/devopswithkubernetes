@@ -1,6 +1,5 @@
 {
-    "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [
-    ],
+    "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [],
     "permanent": [
         ".devcontainer/grep_tool/logger.py",
         ".gitignore",
@@ -11,7 +10,8 @@
         "Dockerfile",
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
-        "README.md"
+        "README.md",
+        "tools/launch_cluster.sh"
     ],
     "patterns": [
         "^.*/Dockerfile$",

@@ -173,3 +173,10 @@ project/apps/backend/requirements.txt
 project/apps/backend/script_templates/dbhandler.py
 project/apps/postgres/.env
 project/apps/postgres/Dockerfile
+project/jobs/todoappender/requirements.txt
+project/jobs/todoappender/script_templates/backend_dbhandler.py
+project/jobs/todoappender/script_templates/dbhandler.py
+project/postjobs/todoappender/requirements-dbhandler.txt
+project/postjobs/todoappender/requirements-requests.txt
+project/postjobs/todoappender/script_templates/backend_dbhandler.py
+project/postjobs/todoappender/script_templates/dbhandler.py

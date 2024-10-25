@@ -29,6 +29,8 @@ spec:
             - "/bin/bash"
             - "-c"
             - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
+          ports:
+            - containerPort: {{.appPort}}
           readinessProbe:
             httpGet:
               path: /
@@ -46,6 +48,10 @@ spec:
               name: {{.tempStartupScriptVolumeName}}
               mountPath: {{.tempScriptVolumeMountPath}}
               readOnly: true
+          securityContext: &security_context
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsNonRoot: true
         - name: {{index .containerNames 1}}
           image: "{{index .containerNames 1}}:latest"
           imagePullPolicy: IfNotPresent
@@ -68,6 +74,7 @@ spec:
           volumeMounts:
             - *logfile_mount
             - *temp_script_mount
+          securityContext: *security_context
       volumes:
         - name: {{.logFileVolumeName}}
           emptyDir: {}

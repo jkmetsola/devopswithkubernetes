@@ -77,6 +77,21 @@
                 "false"
             ],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: dependency_value_tool",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/dependency_value_tool.py",
+            "args": [
+                "--values-yaml",
+                "${workspaceFolder}/project/postjobs/todoappender/manifests/values.yaml",
+                "--global-values-yaml",
+                "${workspaceFolder}/global-values.yaml",
+                "--resolved-values-yaml",
+                "${workspaceFolder}/project/postjobs/todoappender/manifests/dependency-values.yaml"
+            ],
+            "console": "integratedTerminal"
         }
     ]
 }

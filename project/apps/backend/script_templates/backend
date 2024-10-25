@@ -8,38 +8,14 @@ import socketserver
 import sys
 from pathlib import Path
 
-from dbhandler import DataBaseHandler
-
-
-class BackendDatabaseHandler(DataBaseHandler):  # noqa: D101
-    def _init_table(self) -> None:
-        with self.conn.cursor() as cursor:
-            cursor.execute(
-                """
-                CREATE TABLE {{.dbTableName}} (
-                    id SERIAL PRIMARY KEY,
-                    value TEXT NOT NULL
-                );
-                """
-            )
-            self.conn.commit()
-
-    def insert_todo(self, todo: str) -> None:  # noqa: D102
-        with self.conn.cursor() as cursor:
-            cursor.execute("INSERT INTO {{.dbTableName}} (value) VALUES (%s);", (todo,))
-            self.conn.commit()
-
-    def get_todos(self) -> list:  # noqa: D102
-        with self.conn.cursor() as cursor:
-            cursor.execute("SELECT value FROM {{.dbTableName}};")
-            return cursor.fetchall()
+from backend_dbhandler import BackendDatabaseHandler
 
 
 class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Request handler that serves the content of a xxxxx file."""
 
     IMAGEFILE_PATH = (
-        "{{.sharedVolumeMountPath}}/{{.jobs.picturefetcher.randomPictureFileName}}"
+        "{{.sharedVolumeMountPath}}/{{.initjobs.picturefetcher.randomPictureFileName}}"
     )
 
     def do_GET(self) -> None:  # noqa: N802

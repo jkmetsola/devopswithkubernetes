@@ -9,8 +9,9 @@ serviceName: logserver-svc
 clusterPort: 1030
 appPort: 3030
 informationFile: information.txt
-dependencyValues:
-  apps:
-    pingpong:
-      - serviceName
-      - clusterPort
+depValues:
+  project-other:
+    apps:
+      pingpong:
+        - serviceName
+        - clusterPort

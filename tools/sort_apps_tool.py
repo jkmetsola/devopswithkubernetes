@@ -29,14 +29,14 @@ class AppSorter:  # noqa: D101
             f.writelines(f"{app}\n" for app in self.sorted_apps())
 
     def _find_order_files(self) -> iter:
-        for root, _, files in os.walk(self.search_dir, followlinks=True):
+        for root, _, files in os.walk(self.search_dir):
             yield from (
                 (root, file) for file in files if re.match(r"^[0-9][0-9]\.order", file)
             )
 
     def _find_dirs(self) -> iter:
-        for i, (_, dirs, _) in enumerate(os.walk(self.search_dir, followlinks=True)):
-            if i == 1:
+        for depth, (_, dirs, _) in enumerate(os.walk(self.search_dir)):
+            if depth == 1:
                 break
             yield from dirs
 

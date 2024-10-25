@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+
+"""Appends a "todo" item to the database."""
+
+import requests
+from backend_dbhandler import BackendDatabaseHandler
+
+
+class RandomWikipediaPage:
+    """Class to fetch a random Wikipedia page URL."""
+
+    @staticmethod
+    def get_random_url() -> str:  # noqa: D102
+        url = "https://en.wikipedia.org/wiki/Special:Random"
+        response = requests.get(url, timeout=10)
+        return response.url
+
+
+if __name__ == "__main__":
+    random_url = RandomWikipediaPage.get_random_url()
+    BackendDatabaseHandler().insert_todo(f"<a href='{random_url}'>{random_url}</a>")

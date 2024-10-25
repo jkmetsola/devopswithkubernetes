@@ -8,17 +8,23 @@ source "$WORKSPACE_FOLDER/.env"
 # shellcheck source=.devcontainer/setupEnv.sh
 source "${SETUP_ENV_PATH}" "false"
 
+get_full_values_yaml() {
+    SHOW_FULL_VALUES=true "${RESOLVE_HELM_TEMPLATE_TOOL}" "${PWD}"/"${1}"
+}
+
 get_pod_name() {
-    app_name="$(yq eval -e '.containerNames[0]' "${1}"/manifests/values.yaml)"
+    app_name="$(yq eval -e '.containerNames[0]' "$(get_full_values_yaml "${1}")")"
     kubectl get pods -l app="$app_name" -o jsonpath="{.items[0].metadata.name}"
 }
 
 get_container_names() {
-    yq eval -e '.containerNames[]' "${1}"/manifests/values.yaml
+    yq eval -e '.containerNames[]' "$(get_full_values_yaml "${1}")"
 }
 
 get_image_sha() {
-    docker inspect --format='{{.Id}}' "$1"
+    if image_sha="$(docker inspect --format='{{.Id}}' "$1")"; then
+        echo "$image_sha"
+    fi
 }
 
 image_available() {
@@ -30,7 +36,10 @@ build_images_for_app() {
         image_tag="${container}:latest"
         image_sha="$(get_image_sha "${image_tag}")"
         "${SYMLINK_TOOL}" "${PWD}/$1"
-        docker build -f "${1}"/Dockerfile --target "${container}" -t "${image_tag}" "${1}"
+        tmp_docker_build_log=$(mktemp)
+        if ! docker build -f "${1}"/Dockerfile --target "${container}" -t "${image_tag}" "${1}" > "$tmp_docker_build_log" 2>&1; then
+            cat "$tmp_docker_build_log"
+        fi
         if [[ "${image_sha}" != "$(get_image_sha "${image_tag}")" ]]; then
             k3d image import "${image_tag}"
         elif ! image_available "${image_tag}"; then
@@ -107,7 +116,7 @@ verify_frontpage_connectivity(){
 }
 
 init_project(){
-    kubectl delete namespace "$1" || true
+    kubectl delete namespace --now "$1" || true
     kubectl create namespace "$1"
     kubectl config set-context --current --namespace="$1"
 }
@@ -115,8 +124,9 @@ init_project(){
 launch_projects() {
     if [[ "${1:-}" == "$(basename "${PROJECT_FOLDER}")" ]]; then
         (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
-        (cd "${PROJECT_FOLDER}"/jobs && deploy_cronjobs)
+        (cd "${PROJECT_FOLDER}"/initjobs && deploy_cronjobs)
         (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
+        (cd "${PROJECT_FOLDER}"/postjobs && deploy_cronjobs)
         verify_frontpage_connectivity
     elif [[ "${1:-}" == "$(basename "${PROJECT_OTHER_FOLDER}")" ]]; then
         (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)

@@ -14,11 +14,16 @@ APP_NAME="$(basename "$APP_DIR")"
 MANIFESTS_DIR="$1"/manifests
 APP_FILES_DIR="$1"/script_templates
 APP_ENV_FILE="$1"/.env
-
+VALUES_YAML_FILE=$MANIFESTS_DIR/values.yaml
 TEMP_DEP_VARS="$1"/manifests/dependency-values.yaml
 
+FULL_VALUES_YAML="$(mktemp --suffix .yaml)"
+TEMP_ERROR_LOG="$(mktemp --suffix .log)"
+TEMP_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
+FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
+
 check_for_new_helm_errors() {
-    if grep -v "found symbolic link in path:" "${temp_error_log}" >&2; then
+    if grep -v "found symbolic link in path:" "${TEMP_ERROR_LOG}" >&2; then
         echo "New errors seen in helm template output. Please check." >&2
         exit 1
     fi
@@ -28,22 +33,21 @@ cleanup() {
     check_for_new_helm_errors
     rm -f \
     "${TEMP_DEP_VARS}" \
-    "${temp_production_yaml}" \
-    "${temp_error_log}" \
+    "${TEMP_PRODUCTION_YAML}" \
+    "${TEMP_ERROR_LOG}" \
     "${MANIFESTS_DIR}/templates/configMap.yaml" \
     "${MANIFESTS_DIR}/Chart.yaml" \
     "${FULL_CONFIGMAP_TMP}"
 }
 
 build_configmap_if_needed() {
-    FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
     if [[ -f "$APP_ENV_FILE" || -d "$APP_FILES_DIR" ]]; then
         build_configmap_template > "${MANIFESTS_DIR}/templates/configMap.yaml"
     fi
 }
 
 build_configmap_template() {
-    first_container_name="$(yq eval -e '.containerNames[0]' "$APP_DIR"/manifests/values.yaml)"
+    first_container_name="$(yq eval -e '.containerNames[0]' "$(full_values_yaml)")"
     if [[ -f "$APP_ENV_FILE" ]]; then
         configmap_env_tmp="$(mktemp --suffix .yaml)"
         kubectl create configmap "${first_container_name}" \
@@ -89,29 +93,41 @@ version: 0.1.0
 }
 
 resolve_template() {
-    temp_production_yaml="$(mktemp --suffix .yaml)"
     temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
-    temp_error_log="$(mktemp --suffix .log)"
     trap 'cleanup' EXIT
     helm template --generate-name -f "${TEMP_DEP_VARS}" "${MANIFESTS_DIR}" \
-        > "${temp_production_yaml}" 2> "${temp_error_log}"
-    yq eval -e 'explode(.)' "${temp_production_yaml}" > "${temp_resolved_production_yaml}"
+        > "${TEMP_PRODUCTION_YAML}" 2> "${TEMP_ERROR_LOG}"
+    yq eval -e 'explode(.)' "${TEMP_PRODUCTION_YAML}" > "${temp_resolved_production_yaml}"
     echo "${temp_resolved_production_yaml}"
 }
 
 resolve_dependency_values() {
     "${WORKSPACE_FOLDER}"/tools/dependency_value_tool.py \
-        "${APP_DIR}" \
-        "${WORKSPACE_FOLDER}"/global-values.yaml \
-        "${TEMP_DEP_VARS}"
+        --values-yaml "$VALUES_YAML_FILE" \
+        --global-values-yaml "${WORKSPACE_FOLDER}"/global-values.yaml \
+        --resolved-values-yaml "${TEMP_DEP_VARS}"
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
+full_values_yaml() {
+    yq -n "load(\"${TEMP_DEP_VARS}\") * load(\"${VALUES_YAML_FILE}\")" > "$FULL_VALUES_YAML"
+    echo "$FULL_VALUES_YAML"
+}
 
-resolve_dependency_values
-create_chart_file
-build_configmap_if_needed
-resolve_template
+main() {
+    if [[ -n "${DEBUG:-}" ]]; then
+        set -x
+        export DEBUG
+    fi
+
+    resolve_dependency_values
+    if [[ -n "${SHOW_FULL_VALUES:-}" ]]; then
+        full_values_yaml
+        exit 0
+    fi
+
+    create_chart_file
+    build_configmap_if_needed
+    resolve_template
+}
+
+main

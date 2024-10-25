@@ -31,6 +31,8 @@ spec:
                 name: {{index .containerNames 0}}
             - configMapRef:
                 name: {{index .containerNames 0}}
+          ports:
+            - containerPort: {{.appPort}}
           readinessProbe:
             tcpSocket:
               port: {{.appPort}}
@@ -39,6 +41,7 @@ spec:
           volumeMounts:
             - name: {{.dbVolumeName}}
               mountPath: {{.dbMountPath}}
+              readOnly: false
   volumeClaimTemplates:
     - metadata:
         name: {{.dbVolumeName}}

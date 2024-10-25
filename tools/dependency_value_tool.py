@@ -11,6 +11,9 @@ from typing import TYPE_CHECKING, Generator
 if TYPE_CHECKING:
     import types
 
+import argparse
+from argparse import Namespace
+
 import yaml
 
 VALUES_YAML_RELATIVE_PATH = "manifests/values.yaml"
@@ -49,35 +52,45 @@ sys.excepthook = exception_hook
 
 
 class DependencyResolver:  # noqa: D101
-    def __init__(self, app_path: str, global_values_yaml: str, dest_file: str) -> None:  # noqa: D107
-        self.app_path = app_path
-        self.dest_file = dest_file
+    def __init__(  # noqa: D107
+        self, values_yaml: str, global_values_yaml: str, resolved_values_yaml: str
+    ) -> None:
+        self.app_path = Path(values_yaml) / ".." / ".."
+        self.resolved_values_yaml = resolved_values_yaml
         self.dep_value_map = {}
-        with Path(f"{app_path}/{VALUES_YAML_RELATIVE_PATH}").open() as f:
+        with Path(values_yaml).open() as f:
             self.values_yaml = yaml.safe_load(f)
         with Path(global_values_yaml).open() as f:
             self.global_values_yaml = yaml.safe_load(f)
-        self.dependency_values = self.values_yaml.get("dependencyValues")
 
-    def dep_map_generator(self) -> Generator[tuple[str, str, str]]:
+    def dep_map_generator(
+        self,
+        project: str,
+        value_map: dict,
+    ) -> Generator[tuple[str, str, str, str]]:
         """Generate a map of dependencies from the values.yaml file."""
-        for app_type, apps in self.dependency_values.items():
+        for app_type, apps in value_map.items():
             for app, keys in apps.items():
                 for key in keys:
-                    yield app_type, app, key
+                    yield (
+                        self._get_dep_value(project, app_type, app, key),
+                        app_type,
+                        app,
+                        key,
+                    )
 
-    def dep_app_values_yaml(self, app_type: str, app: str) -> Path:
-        """Return the path to the values.yaml file for a given app type and app."""
-        return Path(
-            f"{self.app_path}/../../{app_type}/{app}/{VALUES_YAML_RELATIVE_PATH}"
+    def _get_dep_value(self, project: str, app_type: str, app: str, key: str) -> Path:
+        _path = (
+            Path(f"{self.app_path}/../../../{project}/{app_type}/{app}")
+            / VALUES_YAML_RELATIVE_PATH
         )
+        with _path.resolve().open() as f:
+            return yaml.safe_load(f)[key]
 
-    def extract_dependency_values(self) -> None:
-        """Extract dependency values from the values.yaml files."""
-        for app_type, app, key in self.dep_map_generator():
-            with self.dep_app_values_yaml(app_type, app).open() as f:
-                dep_value = yaml.safe_load(f)[key]
-
+    def _resolve_dep_values_map(self, project: str, dep_values: dict) -> None:
+        for dep_value, app_type, app, key in self.dep_map_generator(
+            project, dep_values
+        ):
             self.dep_value_map[app_type] = self.dep_value_map.get(app_type, {})
             self.dep_value_map[app_type][app] = self.dep_value_map[app_type].get(
                 app, {}
@@ -88,21 +101,59 @@ class DependencyResolver:  # noqa: D101
                 msg = f"Same key defined in the values.yaml! {app_type}.{app}.{key}"
                 raise AssertionError(msg)
 
-    def access_all_the_keys(self) -> None:
-        """Access all the keys in the generated resolved map to verify."""
-        for app_type, app, key in self.dep_map_generator():
+    def _resolve_dep_values_map_no_route(self, project: str, dep_values: dict) -> None:
+        for dep_value, _, _, key in self.dep_map_generator(project, dep_values):
+            self._check_key_not_in_map(key)
+            self.dep_value_map[key] = dep_value
+            self._check_key_not_in_values_yaml(key)
+
+    def _check_key_not_in_map(self, key: str) -> None:
+        if self.dep_value_map.get(key):
+            msg = f"Same key defined already in depepndency value map! {key}"
+            raise AssertionError(msg)
+
+    def _check_key_not_in_values_yaml(self, key: str) -> None:
+        if self.values_yaml.get(key):
+            msg = f"Same key defined in the values.yaml! {key}"
+            raise AssertionError(msg)
+
+    def _access_all_the_keys(self, proj: str, deps: dict) -> None:
+        for _, app_type, app, key in self.dep_map_generator(proj, deps):
             self.dep_value_map[app_type][app][key]
 
-    def create_resolved_dep_value_map(self) -> None:  # noqa: D102
-        if self.dependency_values:
-            self.extract_dependency_values()
-            self.access_all_the_keys()
+    def main(self) -> None:  # noqa: D102
+        for proj, deps in self.values_yaml.get("depValues", {}).items():
+            self._resolve_dep_values_map(proj, deps)
+            self._access_all_the_keys(proj, deps)
+        for proj, deps in self.values_yaml.get("depValuesNoRoute", {}).items():
+            self._resolve_dep_values_map_no_route(proj, deps)
         self.dep_value_map.update(self.global_values_yaml)
-        with Path(self.dest_file).open("w") as f:
+        with Path(self.resolved_values_yaml).open("w") as f:
             yaml.safe_dump(dict(self.dep_value_map), f)
+
+    @staticmethod
+    def parse_args() -> Namespace:  # noqa: D102
+        parser = argparse.ArgumentParser(
+            description="Resolve dependency values from values.yaml files."
+        )
+        parser.add_argument(
+            "--values-yaml",
+            help="Path to the values.yaml which dependencies are resolved",
+        )
+        parser.add_argument(
+            "--global-values-yaml", help="Path to the global values.yaml file"
+        )
+        parser.add_argument(
+            "--resolved-values-yaml",
+            help="Path to the destination file where resolved values will be saved",
+        )
+        return parser.parse_args()
 
 
 if __name__ == "__main__":
+    args = DependencyResolver.parse_args()
     DependencyResolver(
-        sys.argv[1], sys.argv[2], sys.argv[3]
-    ).create_resolved_dep_value_map()
+        values_yaml=args.values_yaml,
+        global_values_yaml=args.global_values_yaml,
+        resolved_values_yaml=args.resolved_values_yaml,
+    ).main()

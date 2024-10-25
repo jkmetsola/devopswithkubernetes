@@ -32,12 +32,18 @@ spec:
           envFrom:
             - secretRef:
                 name: {{index .apps.postgres.containerNames 0}}
+          ports:
+            - containerPort: {{.appPort}}
           readinessProbe:
             httpGet:
               path: /
               port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsUser: 1000
+            runAsNonRoot: true
           volumeMounts:
             - name: {{.sharedPersistentVolumeName}}
               mountPath: {{.sharedVolumeMountPath}}

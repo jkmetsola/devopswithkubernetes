@@ -1,11 +1,6 @@
 ---
 containerNames:
-  - pingpong
-serviceName: pingpong-svc
-clusterPort: 1020
-appPort: 3020
-dbTableName: counter
-dbCounterTableItemId: 1
+  - todoappender
 depValues:
   project-other:
     apps:
@@ -13,3 +8,8 @@ depValues:
         - serviceName
         - appPort
         - containerNames
+depValuesNoRoute:
+  project:
+    apps:
+      backend:
+        - dbTableName

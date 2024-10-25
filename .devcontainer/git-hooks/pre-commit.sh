@@ -33,21 +33,38 @@ check_linefeed_eof() {
 }
 
 lint_python_files() {
-    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check
-    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --diff
+    ruff check --respect-gitignore > /dev/null
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check > /dev/null
+    ruff format --diff --respect-gitignore > /dev/null
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --diff > /dev/null
 }
 
 lint_sh_files() {
     find . -type f -name "*.sh" -print0 | xargs -0 shellcheck
 }
 
+lint_with_kubelint(){
+    if ! kubelint_output="$(kube-linter lint --with-color --exclude latest-tag "$1" 2>&1)"; then
+        if ! echo "$kubelint_output" | grep "postgres apps/v1, Kind=StatefulSet" > /dev/null; then
+            echo "$kubelint_output"
+            return 1
+        fi
+    fi
+}
+
 lint_helm_templates() {
-    find "${PROJECT_FOLDER}" -mindepth 2 -maxdepth 2 -type d -print0 \
-        | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
-        | xargs yamllint
-    find "${PROJECT_OTHER_FOLDER}" -mindepth 2 -maxdepth 2 -type d -print0 \
-        | xargs -0 -n 1 "${RESOLVE_HELM_TEMPLATE_TOOL}" \
-        | xargs yamllint
+    local directories=("${PROJECT_FOLDER}" "${PROJECT_OTHER_FOLDER}")
+    for dir in "${directories[@]}"; do
+        while IFS= read -r -d '' item; do
+            local resolved_template
+            resolved_template=$("${RESOLVE_HELM_TEMPLATE_TOOL}" "$item")
+            yamllint "$resolved_template"
+            lint_with_kubelint "$resolved_template"
+            kubectl create namespace "$(basename "$dir")" > /dev/null 2>&1 || true
+            kubectl config set-context --current --namespace="$(basename "$dir")" > /dev/null
+            kubectl apply --dry-run=server -f "$resolved_template" > /dev/null
+        done < <(find "${dir}" -mindepth 2 -maxdepth 2 -type d -print0)
+    done
 }
 
 lint_other_yaml_files() {
@@ -98,6 +115,13 @@ lint_js_files(){
     fi
 }
 
+test_no_broken_links(){
+    broken_links="$(find "$WORKSPACE_FOLDER" -xtype l)"
+    if [ -n "$broken_links" ]; then
+        exit 1
+    fi
+}
+
 check_whitespace_error
 check_linefeed_eof
 check_usage_of_modified_files
@@ -108,6 +132,10 @@ lint_other_yaml_files
 lint_docker_files
 lint_html_files
 lint_js_files
+test_no_broken_links
 
-${LAUNCH_PROJECT} "$(basename "${PROJECT_FOLDER}")"
-${LAUNCH_PROJECT} "$(basename "${PROJECT_OTHER_FOLDER}")"
+
+echo "Testing ${PROJECT_FOLDER} launch..."
+${LAUNCH_PROJECT} "$(basename "${PROJECT_FOLDER}")" > /dev/null
+echo "Testing ${PROJECT_OTHER_FOLDER} launch..."
+${LAUNCH_PROJECT} "$(basename "${PROJECT_OTHER_FOLDER}")" > /dev/null

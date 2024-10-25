@@ -17,6 +17,8 @@
     ],
     "yaml.format.bracketSpacing": false,
     "files.associations": {
+        "*.py.symlink": "python",
         //"*.yaml": "yaml"
-    }
+    },
+    "diffEditor.renderSideBySide": false,
 }

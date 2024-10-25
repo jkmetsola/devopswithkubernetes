@@ -1,5 +1,7 @@
 ARG BASE_IMAGE
 ### BUILD STAGES:
+
+FROM stackrox/kube-linter:v0.6.8 AS kube-linter
 FROM ghcr.io/sigstore/cosign/cosign:v2.4.1 AS cosign-bin
 
 # hadolint ignore=DL3006
@@ -62,6 +64,7 @@ RUN ./${REPOS_DEVENV_FILE} && \
     ./${CONFIGURE_DEVUSER_FILE} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
 
 COPY --from=sops-bin /usr/local/bin/sops /usr/local/bin/sops
+COPY --from=kube-linter /kube-linter /usr/local/bin/kube-linter
 
 USER "$DEVUSER"
 
