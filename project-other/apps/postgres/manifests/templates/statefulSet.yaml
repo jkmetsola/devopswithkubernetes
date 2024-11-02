@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: {{index .containerNames 0}}
-          image: "{{index .containerNames 0}}:latest"
+          image: "{{.imageRegistry}}/{{index .containerNames 0}}:latest"
           imagePullPolicy: IfNotPresent
           resources:
             limits:
@@ -42,6 +42,7 @@ spec:
             - name: {{.dbVolumeName}}
               mountPath: {{.dbMountPath}}
               readOnly: false
+              subPath: {{index .containerNames 0}}
   volumeClaimTemplates:
     - metadata:
         name: {{.dbVolumeName}}

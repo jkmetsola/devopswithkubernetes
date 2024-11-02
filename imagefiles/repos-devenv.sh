@@ -14,5 +14,13 @@ configure_helm_repo() {
     | tee /etc/apt/sources.list.d/helm-stable-debian.list
 }
 
+configure_google_cloud_cli() {
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+        | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
+        | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+}
+
 configure_kubectl_repo
 configure_helm_repo
+configure_google_cloud_cli

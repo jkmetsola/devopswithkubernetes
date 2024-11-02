@@ -35,8 +35,8 @@ check_linefeed_eof() {
 lint_python_files() {
     ruff check --respect-gitignore > /dev/null
     grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check > /dev/null
-    ruff format --diff --respect-gitignore > /dev/null
-    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --diff > /dev/null
+    ruff format --quiet --diff --respect-gitignore > /dev/null
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --quiet --diff > /dev/null
 }
 
 lint_sh_files() {

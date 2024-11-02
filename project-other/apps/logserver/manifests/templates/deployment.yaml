@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: {{index .containerNames 0}}
-          image: "{{index .containerNames 0}}:latest"
+          image: "{{.imageRegistry}}/{{index .containerNames 0}}:latest"
           imagePullPolicy: IfNotPresent
           resources: &resource_limits
             limits:
@@ -53,7 +53,7 @@ spec:
             runAsUser: 1000
             runAsNonRoot: true
         - name: {{index .containerNames 1}}
-          image: "{{index .containerNames 1}}:latest"
+          image: "{{.imageRegistry}}/{{index .containerNames 1}}:latest"
           imagePullPolicy: IfNotPresent
           resources: *resource_limits
           command:

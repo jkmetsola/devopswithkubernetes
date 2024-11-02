@@ -16,7 +16,8 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: {{index .containerNames 0}}
-              image: "{{index .containerNames 0}}:latest"
+              # yamllint disable-line rule:line-length
+              image: "{{.imageRegistry}}/{{index .containerNames 0}}:latest"
               imagePullPolicy: IfNotPresent
               command:
                 - "/bin/bash"

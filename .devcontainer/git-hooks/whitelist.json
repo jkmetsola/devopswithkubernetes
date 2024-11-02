@@ -6,7 +6,6 @@
         ".vscode/launch.json",
         ".vscode/settings.json",
         "base_script_templates/dbhandler.py",
-        "base_templates/templates/ingress.yaml",
         "Dockerfile",
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
@@ -14,7 +13,7 @@
         "tools/launch_cluster.sh"
     ],
     "patterns": [
-        "^.*/persistentVolumeClaim.yaml$",
+        "^.*/templates/.*yaml$",
         "^.*/Dockerfile$",
         "^.*/__init__.py$",
         "^.*/manifests/.*",

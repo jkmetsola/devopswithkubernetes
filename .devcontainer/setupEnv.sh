@@ -41,6 +41,8 @@ define_global_vars(){
   export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
   export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh
   export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
+  PROJECT_ID="$(gcloud config list --format='value(core.project)')" || true
+  export PROJECT_ID
 }
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"

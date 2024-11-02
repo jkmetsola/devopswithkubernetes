@@ -22,6 +22,15 @@ TEMP_ERROR_LOG="$(mktemp --suffix .log)"
 TEMP_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
 FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
 
+get_deployment_specific_values_file(){
+    cluster_name="$(kubectl config current-context)"
+    if [[ "$cluster_name" == "gke_dwk-gke-440513_europe-north1-b_dwk-cluster" ]]; then
+        echo "$WORKSPACE_FOLDER/gke-specific-values.yaml"
+    elif [[ "$cluster_name" == "k3d-k3s-default" ]]; then
+        echo "$WORKSPACE_FOLDER/k3d-specific-values.yaml"
+    fi
+}
+
 check_for_new_helm_errors() {
     if grep -v "found symbolic link in path:" "${TEMP_ERROR_LOG}" >&2; then
         echo "New errors seen in helm template output. Please check." >&2
@@ -95,7 +104,10 @@ version: 0.1.0
 resolve_template() {
     temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
     trap 'cleanup' EXIT
-    helm template --generate-name -f "${TEMP_DEP_VARS}" "${MANIFESTS_DIR}" \
+    helm template --generate-name \
+        -f "$(get_deployment_specific_values_file)" \
+        -f "${TEMP_DEP_VARS}" \
+        "${MANIFESTS_DIR}" \
         > "${TEMP_PRODUCTION_YAML}" 2> "${TEMP_ERROR_LOG}"
     yq eval -e 'explode(.)' "${TEMP_PRODUCTION_YAML}" > "${temp_resolved_production_yaml}"
     echo "${temp_resolved_production_yaml}"
