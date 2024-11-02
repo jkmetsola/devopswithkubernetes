@@ -1,0 +1,3 @@
+---
+serviceType: LoadBalancer
+storageClassName: standard-rwo

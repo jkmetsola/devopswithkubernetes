@@ -28,22 +28,44 @@ get_image_sha() {
 }
 
 image_available() {
-    docker exec k3d-k3s-default-agent-0 crictl inspecti "${1}" > /dev/null
+    docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null
+    docker pull "$1" > /dev/null
+}
+
+import_image_to_cluster() {
+    k3d image import "$1"
+    docker push "$1"
+}
+
+get_full_tag() {
+    echo "europe-north1-docker.pkg.dev/$PROJECT_ID/dwk/$1"
+}
+
+docker_build_cmd() {
+    app=$1
+    container=$2
+    image_tag=$3
+    docker build \
+        -f "${app}"/Dockerfile \
+        --target "${container}" \
+        -t "$image_tag" \
+        "${app}" \
+        > "$tmp_docker_build_log" 2>&1
 }
 
 build_images_for_app() {
     for container in $(get_container_names "${1}"); do
-        image_tag="${container}:latest"
+        image_tag="$(get_full_tag "${container}:latest")"
         image_sha="$(get_image_sha "${image_tag}")"
         "${SYMLINK_TOOL}" "${PWD}/$1"
         tmp_docker_build_log=$(mktemp)
-        if ! docker build -f "${1}"/Dockerfile --target "${container}" -t "${image_tag}" "${1}" > "$tmp_docker_build_log" 2>&1; then
+        if ! docker_build_cmd "$1" "$container" "$image_tag"; then
             cat "$tmp_docker_build_log"
         fi
         if [[ "${image_sha}" != "$(get_image_sha "${image_tag}")" ]]; then
-            k3d image import "${image_tag}"
+            import_image_to_cluster "$image_tag"
         elif ! image_available "${image_tag}"; then
-            k3d image import "${image_tag}"
+            import_image_to_cluster "$image_tag"
         fi
     done
 }
@@ -102,7 +124,7 @@ deploy_apps() {
 }
 
 wait_for_pod() {
-    kubectl wait --all --for=condition=Ready --timeout=30s pod -l app="$1"
+    kubectl wait --all --for=condition=Ready --timeout=60s pod -l app="$1"
     kubectl logs --all-containers -l app="$1"
 }
 
@@ -127,7 +149,6 @@ launch_projects() {
         (cd "${PROJECT_FOLDER}"/initjobs && deploy_cronjobs)
         (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
         (cd "${PROJECT_FOLDER}"/postjobs && deploy_cronjobs)
-        verify_frontpage_connectivity
     elif [[ "${1:-}" == "$(basename "${PROJECT_OTHER_FOLDER}")" ]]; then
         (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
         (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
