@@ -106,7 +106,7 @@ wait_for_pod() {
     kubectl logs --all-containers -l app="$1"
 }
 
-verify_frontpage_connectivity(){
+verify_frontpage_connectivity() {
     echo -n "Waiting that host.docker.internal:8081 can be reached ..."
     until curl --silent --fail host.docker.internal:8081 > /dev/null; do
         echo -n "."
@@ -115,7 +115,7 @@ verify_frontpage_connectivity(){
     echo " OK"
 }
 
-init_project(){
+init_project() {
     kubectl delete namespace --now "$1" || true
     kubectl create namespace "$1"
     kubectl config set-context --current --namespace="$1"
@@ -150,6 +150,7 @@ main() {
 
     if [[ -n "${1:-}" ]]; then
         app="$(basename "$1")"
+        kubectl config set-context --current --namespace="$(basename "$(realpath "$1/../..")")"
         cd "${WORKSPACE_FOLDER}/$1/.."
         if ! build_and_apply "$app"; then
             echo "Error: Failed to deploy $1" >&2

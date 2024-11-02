@@ -47,7 +47,7 @@ spec:
         name: {{.dbVolumeName}}
       spec:
         accessModes: ["ReadWriteOnce"]
-        storageClassName: local-path
+        storageClassName: {{.storageClassName}}
         resources:
           requests:
             storage: 100Mi

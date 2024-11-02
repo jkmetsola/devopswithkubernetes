@@ -4,3 +4,4 @@ sharedPersistentVolumeClaimName: shared-volume-claim
 sharedVolumeMountPath: /shared-volume
 tempStartupScriptVolumeName: temp-startup-script-volume
 tempScriptVolumeMountPath: /app-scripts
+storageClassName: local-path

@@ -11,6 +11,10 @@ from pathlib import Path
 from backend_dbhandler import BackendDatabaseHandler
 
 
+class InvalidRequestError(Exception):
+    """Exception raised when server gets invalid request."""
+
+
 class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
     """Request handler that serves the content of a xxxxx file."""
 
@@ -47,6 +51,12 @@ class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
         post_data = self.rfile.read(int(self.headers["Content-Length"]))
         decoded_post_data = post_data.decode("utf-8")
         new_todo_item = decoded_post_data.split("=")[1]
+        if len(new_todo_item) > 140:  # noqa: PLR2004
+            msg = (
+                "To do item is longer than 140 characters. "
+                f"Invalid item: {new_todo_item}"
+            )
+            raise InvalidRequestError(msg)
         DB_CONNECTION.insert_todo(new_todo_item)
         resp_data = {"message": "POST request received", "data": decoded_post_data}
         self.wfile.write(json.dumps(resp_data).encode("utf-8"))
