@@ -10,7 +10,9 @@
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
         "README.md",
-        "tools/launch_cluster.sh"
+        "tools/launch_cluster.sh",
+        ".github/workflows/main.yaml",
+        ".yamllint"
     ],
     "patterns": [
         "^.*/templates/.*yaml$",

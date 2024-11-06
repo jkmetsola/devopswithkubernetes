@@ -28,17 +28,21 @@ get_image_sha() {
 }
 
 image_available() {
-    docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null
+    if [ -z "${CI:-}" ]; then
+        docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null
+    fi
     docker pull "$1" > /dev/null
 }
 
 import_image_to_cluster() {
-    k3d image import "$1"
+    if [ -z "${CI:-}" ]; then
+        k3d image import "$1"
+    fi
     docker push "$1"
 }
 
 get_full_tag() {
-    echo "europe-north1-docker.pkg.dev/$PROJECT_ID/dwk/$1"
+    echo "europe-north1-docker.pkg.dev/$PROJECT_ID/dwk/$1:$VERSION_TAG"
 }
 
 docker_build_cmd() {
@@ -55,7 +59,7 @@ docker_build_cmd() {
 
 build_images_for_app() {
     for container in $(get_container_names "${1}"); do
-        image_tag="$(get_full_tag "${container}:latest")"
+        image_tag="$(get_full_tag "${container}")"
         image_sha="$(get_image_sha "${image_tag}")"
         "${SYMLINK_TOOL}" "${PWD}/$1"
         tmp_docker_build_log=$(mktemp)
@@ -126,15 +130,6 @@ deploy_apps() {
 wait_for_pod() {
     kubectl wait --all --for=condition=Ready --timeout=60s pod -l app="$1"
     kubectl logs --all-containers -l app="$1"
-}
-
-verify_frontpage_connectivity() {
-    echo -n "Waiting that host.docker.internal:8081 can be reached ..."
-    until curl --silent --fail host.docker.internal:8081 > /dev/null; do
-        echo -n "."
-        sleep 3
-    done
-    echo " OK"
 }
 
 init_project() {
