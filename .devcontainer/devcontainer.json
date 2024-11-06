@@ -27,7 +27,7 @@
         "source=/home/${localEnv:USER}/.bash_history,target=/home/devroot/.bash_history,type=bind",
         "source=/home/${localEnv:USER}/.devopswithkubernetes-kube,target=/home/devroot/.kube,type=bind",
         "source=/home/${localEnv:USER}/.config/gcloud,target=/home/devroot/.config/gcloud,type=bind",
-        "source=/home/${localEnv:USER}/.docker,target=/home/devroot/.docker,type=bind"
+        "source=/home/${localEnv:USER}/.devcontainer-docker,target=/home/devroot/.docker,type=bind"
     ],
     "updateRemoteUserUID": false,
     "remoteUser": "devroot",

@@ -43,6 +43,8 @@ define_global_vars(){
   export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
   PROJECT_ID="$(gcloud config list --format='value(core.project)')" || true
   export PROJECT_ID
+  VERSION_TAG="$(git rev-parse --abbrev-ref HEAD | tr '/' '-')-$(git rev-parse HEAD)"
+  export VERSION_TAG
 }
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"

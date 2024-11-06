@@ -17,7 +17,7 @@ spec:
           containers:
             - name: {{index .containerNames 0}}
               # yamllint disable-line rule:line-length
-              image: "{{.imageRegistry}}/{{index .containerNames 0}}:latest"
+              image: "{{.imageRegistry}}/{{index .containerNames 0}}:{{.versionTag}}"
               imagePullPolicy: IfNotPresent
               command:
                 - "/bin/bash"

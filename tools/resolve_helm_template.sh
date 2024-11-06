@@ -105,6 +105,7 @@ resolve_template() {
     temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
     trap 'cleanup' EXIT
     helm template --generate-name \
+        --set versionTag="$VERSION_TAG" \
         -f "$(get_deployment_specific_values_file)" \
         -f "${TEMP_DEP_VARS}" \
         "${MANIFESTS_DIR}" \
