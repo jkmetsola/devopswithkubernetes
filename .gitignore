@@ -167,6 +167,8 @@ report.html
 configMap.yaml
 secret.yaml
 project-other/apps/logserver/requirements.txt
+project-other/apps/logserver/script_templates/dbhandler.py
+project-other/apps/logserver/script_templates/pingpong_dbhandler.py
 project-other/apps/pingpong/requirements.txt
 project-other/apps/pingpong/script_templates/dbhandler.py
 project/apps/backend/requirements.txt

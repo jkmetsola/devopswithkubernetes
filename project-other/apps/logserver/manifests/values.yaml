@@ -12,6 +12,13 @@ informationFile: information.txt
 depValues:
   project-other:
     apps:
-      pingpong:
+      postgres:
         - serviceName
-        - clusterPort
+        - appPort
+        - containerNames
+depValuesNoRoute:
+  project-other:
+    apps:
+      pingpong:
+        - dbTableName
+        - dbCounterTableItemId

@@ -1,3 +1,4 @@
 ---
 serviceType: LoadBalancer
 storageClassName: standard-rwo
+imagePullPolicy: Always

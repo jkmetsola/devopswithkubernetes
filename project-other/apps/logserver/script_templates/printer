@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
+from pingpong_dbhandler import PingPongDataBaseHandler
 
 
 class RandomStringPrinter:
@@ -21,13 +21,13 @@ class RandomStringPrinter:
         return "".join(secrets.choice(letters) for _ in range(length))
 
     @staticmethod
-    def run(logfile: str, pongs_url: str) -> None:
+    def run(logfile: str) -> None:
         """Print a random string every 5 seconds."""
+        db_connection = PingPongDataBaseHandler()
         while True:
-            resp = requests.get(pongs_url, timeout=5)
             random_string = (
                 RandomStringPrinter._generate_random_string() + "\n"
-                "Pings / Pongs: " + str(resp.json()["pongs"])
+                "Pings / Pongs: " + str(db_connection.get_counter_value())
             )
             timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
             with Path.open("{{.tempScriptVolumeMountPath}}/{{.informationFile}}") as f:
@@ -42,7 +42,4 @@ class RandomStringPrinter:
 
 
 if __name__ == "__main__":
-    RandomStringPrinter.run(
-        logfile="{{.logFileMountPath}}/{{.logFileName}}",
-        pongs_url="http://{{.apps.pingpong.serviceName}}:{{.apps.pingpong.clusterPort}}",
-    )
+    RandomStringPrinter.run(logfile="{{.logFileMountPath}}/{{.logFileName}}")

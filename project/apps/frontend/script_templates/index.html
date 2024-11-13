@@ -11,13 +11,13 @@
     <h1>Todo List</h1>
     <ul id="todoList">
     </ul>
-    <script src="{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}"></script>
+    <script src="/{{index .containerNames 0}}{{.tempScriptVolumeMountPath}}/{{.fetchTodosScriptFile}}"></script>
     <form action="/{{index .apps.backend.containerNames 0}}" method="post"
         onsubmit="setTimeout(function () { window.location.reload(); }, 10)">
         <input type="text" name="TodoItem" placeholder="uusi itemi" required>
         <button type="submit">Submit</button>
     </form>
-    <h2>Embedded Image</h2>
+    <h2>Random Image</h2>
     <img src="/{{index .apps.backend.containerNames 0}}{{.sharedVolumeMountPath}}/{{.initjobs.picturefetcher.randomPictureFileName}}"
         alt="Embedded Image">
 </body>
