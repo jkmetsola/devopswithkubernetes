@@ -24,7 +24,7 @@ class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the file and returning its content."""
-        if self.path == f"{self.IMAGEFILE_PATH}":
+        if self.path.endswith(f"{self.IMAGEFILE_PATH}"):
             self._handle_imagefile()
         else:
             self._handle_storage()

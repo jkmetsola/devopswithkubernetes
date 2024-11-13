@@ -2,26 +2,26 @@
     "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [],
     "permanent": [
         ".devcontainer/grep_tool/logger.py",
+        ".github/workflows/workflow.yaml",
         ".gitignore",
         ".vscode/launch.json",
         ".vscode/settings.json",
+        ".yamllint",
         "base_script_templates/dbhandler.py",
         "Dockerfile",
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
         "README.md",
-        "tools/launch_cluster.sh",
-        ".github/workflows/main.yaml",
-        ".yamllint"
+        "tools/launch_cluster.sh"
     ],
     "patterns": [
-        "^.*/templates/.*yaml$",
-        "^.*/Dockerfile$",
+        "^.*[.]symlink$",
         "^.*/__init__.py$",
-        "^.*/manifests/.*",
-        "^.*/script_templates/.*",
         "^.*/.env$",
         "^.*/[0-9]{2}[.]order$",
-        "^.*[.]symlink$"
+        "^.*/Dockerfile$",
+        "^.*/manifests/.*",
+        "^.*/script_templates/.*",
+        "^.*/templates/.*yaml$"
     ]
 }

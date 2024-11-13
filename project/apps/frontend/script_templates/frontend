@@ -13,7 +13,7 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the log file and returning its content."""
-        if self.path == self.JS_SCRIPT_PATH:
+        if self.path.endswith(self.JS_SCRIPT_PATH):
             self._handle_scriptfile()
         else:
             self._handle_frontpage()

@@ -4,16 +4,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{index .containerNames 0}}-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
-  ingressClassName: nginx
   rules:
+    - host: {{index .containerNames 0}}
     - http:
         paths:
-          - path: /{{index .containerNames 0}}(/|$)(.*)
-            pathType: ImplementationSpecific
+          - path: /{{index .containerNames 0}}
+            pathType: Prefix
             backend:
               service:
                 name: {{.serviceName}}

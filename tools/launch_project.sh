@@ -29,16 +29,14 @@ get_image_sha() {
 
 image_available() {
     if [ -z "${CI:-}" ]; then
-        docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null
+        docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null || return 1
     fi
-    docker pull "$1" > /dev/null
 }
 
 import_image_to_cluster() {
     if [ -z "${CI:-}" ]; then
         k3d image import "$1"
     fi
-    docker push "$1"
 }
 
 get_full_tag() {
@@ -65,11 +63,15 @@ build_images_for_app() {
         tmp_docker_build_log=$(mktemp)
         if ! docker_build_cmd "$1" "$container" "$image_tag"; then
             cat "$tmp_docker_build_log"
+            return 1
         fi
         if [[ "${image_sha}" != "$(get_image_sha "${image_tag}")" ]]; then
             import_image_to_cluster "$image_tag"
         elif ! image_available "${image_tag}"; then
             import_image_to_cluster "$image_tag"
+        fi
+        if [[ "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
+            docker push "$image_tag"
         fi
     done
 }

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
@@ -33,10 +34,10 @@ check_linefeed_eof() {
 }
 
 lint_python_files() {
-    ruff check --respect-gitignore > /dev/null
-    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check > /dev/null
-    ruff format --quiet --diff --respect-gitignore > /dev/null
-    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --quiet --diff > /dev/null
+    ruff check --quiet --respect-gitignore
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff check --quiet
+    ruff format --quiet --diff --respect-gitignore
+    grep --null -Rl '^#!/usr/bin/env python3' | xargs -0 ruff format --quiet --diff
 }
 
 lint_sh_files() {
@@ -133,6 +134,12 @@ lint_docker_files
 lint_html_files
 lint_js_files
 test_no_broken_links
+
+if [[ -n "${SKIP_LAUNCH_TESTS:-}" ]]; then
+    exit 0
+fi
+
+git clean -f -x -e "/.env"
 
 echo "Testing ${PROJECT_FOLDER} launch..."
 ${LAUNCH_PROJECT} "$(basename "${PROJECT_FOLDER}")" > /dev/null
