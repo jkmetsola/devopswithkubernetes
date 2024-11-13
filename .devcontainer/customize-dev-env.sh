@@ -6,6 +6,10 @@ WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
 # shellcheck source=.env
 source "$WORKSPACE_FOLDER"/.env
 
+
+
+curl -o ~/git-prompt.sh \
+    https://raw.githubusercontent.com/git/git/refs/heads/master/contrib/completion/git-prompt.sh
 cat "${WORKSPACE_FOLDER}/.devcontainer/bashrc-custompart.sh" >> ~/.bashrc
 echo "
 git config --global user.email \"$GIT_EMAIL\"
