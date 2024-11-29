@@ -135,7 +135,7 @@ lint_html_files
 lint_js_files
 test_no_broken_links
 
-if [[ -n "${SKIP_LAUNCH_TESTS:-}" ]]; then
+if [[ -n "${SKIP_LAUNCH_TESTS:-}" || "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
     exit 0
 fi
 
