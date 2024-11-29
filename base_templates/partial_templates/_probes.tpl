@@ -7,7 +7,7 @@
               port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
           livenessProbe: *probe
           {{- end}}
 {{- end -}}
