@@ -6,7 +6,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 from traceback import format_exception
-from typing import TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Generator  # noqa: UP035
 
 if TYPE_CHECKING:
     import types
