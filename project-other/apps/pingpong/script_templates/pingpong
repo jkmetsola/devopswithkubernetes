@@ -1,40 +1,27 @@
 #!/usr/bin/env python3
 """Server that increments a counter each time it is accessed."""
 
-import http.server
 import json
-import socketserver
-import sys
+from http.server import SimpleHTTPRequestHandler
 
 from pingpong_dbhandler import PingPongDataBaseHandler
+from tcpserver import TCPServerLauncher
 
 
-class PingPongRequestHandler(http.server.SimpleHTTPRequestHandler):
+class PingPongRequestHandler(SimpleHTTPRequestHandler):
     """Serves the content of a specified log file and increments a counter."""
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET request and serve the counter value."""
+        response = json.dumps({"pongs": DB_CONNECTION.get_counter_value()})
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        response = json.dumps({"pongs": DB_CONNECTION.get_counter_value()})
         self.wfile.write(response.encode())
         DB_CONNECTION.increment_counter_value()
-
-
-class PingPongServer:
-    """Server to handle ping-pong requests."""
-
-    @staticmethod
-    def run(port: int) -> None:
-        """Start the server."""
-        with socketserver.TCPServer(("", port), PingPongRequestHandler) as httpd:
-            sys.stdout.write(f"Server started in port {port}\n")
-            sys.stdout.flush()
-            httpd.serve_forever()
 
 
 if __name__ == "__main__":
     DB_CONNECTION = PingPongDataBaseHandler()
     DB_CONNECTION.increment_counter_value()
-    PingPongServer.run(int("{{.appPort}}"))
+    TCPServerLauncher.run(int("{{.appPort}}"), PingPongRequestHandler)

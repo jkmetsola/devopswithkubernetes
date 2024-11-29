@@ -2,15 +2,15 @@
 
 """Starts a simple HTTP server that serves the content of a specified log file."""
 
-import http.server
-import socketserver
-import sys
+from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
+
+from tcpserver import TCPServerLauncher
 
 LOG_FILE = Path("{{.logFileMountPath}}") / "{{.logFileName}}"
 
 
-class LogRequestHandler(http.server.SimpleHTTPRequestHandler):
+class LogRequestHandler(SimpleHTTPRequestHandler):
     """Request handler that serves the content of a log file."""
 
     def _get_log_content(self) -> str:
@@ -19,25 +19,14 @@ class LogRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET requests by reading the log file and returning its content."""
+        log_content = self._get_log_content().encode("utf-8")
         self.send_response(200)
         self.send_header("Content-type", "text/plain")
         self.end_headers()
-        self.wfile.write(self._get_log_content().encode("utf-8"))
-
-
-class LogServer:
-    """A simple log server that serves the content of a specified log file."""
-
-    @staticmethod
-    def run(port: int) -> None:
-        """Start the server."""
-        with Path(LOG_FILE).open("w") as file:
-            file.write("\n")
-        with socketserver.TCPServer(("", port), LogRequestHandler) as httpd:
-            sys.stdout.write(f"Server started in port {port}\n")
-            sys.stdout.flush()
-            httpd.serve_forever()
+        self.wfile.write(log_content)
 
 
 if __name__ == "__main__":
-    LogServer.run(int("{{.appPort}}"))
+    with Path(LOG_FILE).open("w") as file:
+        file.write("\n")
+    TCPServerLauncher.run(int("{{.appPort}}"), LogRequestHandler)

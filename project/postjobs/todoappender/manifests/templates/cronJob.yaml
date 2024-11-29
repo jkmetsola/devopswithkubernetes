@@ -15,35 +15,11 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: {{index .containerNames 0}}
-              # yamllint disable-line rule:line-length
-              image: "{{.imageRegistry}}/{{index .containerNames 0}}:{{.versionTag}}"
-              imagePullPolicy: {{.imagePullPolicy}}
-              command:
-                - "/bin/bash"
-                - "-c"
-                - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
+              {{- include "container.base" $ | indent 4}}
               envFrom:
                 - secretRef:
                     name: {{index .apps.postgres.containerNames 0}}
-              resources:
-                limits:
-                  memory: "128Mi"
-                  cpu: "500m"
-                requests:
-                  memory: "64Mi"
-                  cpu: "250m"
-              volumeMounts:
-                - name: {{.tempStartupScriptVolumeName}}
-                  mountPath: {{.tempScriptVolumeMountPath}}
-                  readOnly: true
-              securityContext:
-                readOnlyRootFilesystem: true
-                runAsUser: 1000
-                runAsNonRoot: true
-          volumes:
-            - name: {{.tempStartupScriptVolumeName}}
-              configMap:
-                name: {{index .containerNames 0}}
-                defaultMode: 0755
+              {{- include "security.context" $ | indent 4}}
+              {{- include "volumemounts.base" $ | indent 4}}
+          {{- include "volumes.base" $ | indent 4}}
 {{- end}}

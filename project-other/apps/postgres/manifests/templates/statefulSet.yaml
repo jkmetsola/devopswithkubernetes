@@ -16,16 +16,7 @@ spec:
         app: {{index .containerNames 0}}
     spec:
       containers:
-        - name: {{index .containerNames 0}}
-          image: "{{.imageRegistry}}/{{index .containerNames 0}}:{{.versionTag}}"
-          imagePullPolicy: {{.imagePullPolicy}}
-          resources:
-            limits:
-              cpu: "1"
-              memory: "512Mi"
-            requests:
-              cpu: "100m"
-              memory: "256Mi"
+          {{- template "container.base" $}}
           envFrom:
             - secretRef:
                 name: {{index .containerNames 0}}

@@ -18,6 +18,7 @@
     "yaml.format.bracketSpacing": false,
     "files.associations": {
         "*.py.symlink": "python",
+        "*.tpl": "helm"
         //"*.yaml": "yaml"
     },
     "diffEditor.renderSideBySide": false,
