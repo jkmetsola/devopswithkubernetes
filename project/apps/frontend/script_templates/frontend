@@ -19,20 +19,22 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
             self._handle_frontpage()
 
     def _handle_frontpage(self) -> None:
+        index_file = Path("{{.tempScriptVolumeMountPath}}/{{.serverIndexFile}}")
+        with index_file.open("r") as file:
+            file_content = file.read().encode("utf-8")
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        index_file = Path("{{.tempScriptVolumeMountPath}}/{{.serverIndexFile}}")
-        with index_file.open("r") as file:
-            self.wfile.write(file.read().encode("utf-8"))
+        self.wfile.write(file_content)
 
     def _handle_scriptfile(self) -> None:
+        script_file = Path(self.JS_SCRIPT_PATH)
+        with script_file.open("r") as file:
+            file_content = file.read().encode("utf-8")
         self.send_response(200)
         self.send_header("Content-type", "application/javascript")
         self.end_headers()
-        script_file = Path(self.JS_SCRIPT_PATH)
-        with script_file.open("r") as file:
-            self.wfile.write(file.read().encode("utf-8"))
+        self.wfile.write(file_content)
 
 
 if __name__ == "__main__":

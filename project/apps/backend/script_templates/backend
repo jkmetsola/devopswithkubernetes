@@ -29,24 +29,23 @@ class BackendRequestHandler(SimpleHTTPRequestHandler):
             self._handle_storage()
 
     def _handle_storage(self) -> None:
+        todos = json.dumps(DB_CONNECTION.get_todos()).encode("utf-8")
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(json.dumps(DB_CONNECTION.get_todos()).encode("utf-8"))
+        self.wfile.write(todos)
 
     def _handle_imagefile(self) -> None:
+        image_file = Path(self.IMAGEFILE_PATH)
+        with image_file.open("rb") as file:
+            file_content = file.read()
         self.send_response(200)
         self.send_header("Content-type", "image/png")
         self.end_headers()
-        image_file = Path(self.IMAGEFILE_PATH)
-        with image_file.open("rb") as file:
-            self.wfile.write(file.read())
+        self.wfile.write(file_content)
 
     def do_POST(self) -> None:  # noqa: N802
         """Handle POST requests by adding the content to the file."""
-        self.send_response(200)
-        self.send_header("Content-type", "application/json")
-        self.end_headers()
         post_data = self.rfile.read(int(self.headers["Content-Length"]))
         decoded_post_data = post_data.decode("utf-8")
         new_todo_item = decoded_post_data.split("=")[1]
@@ -57,8 +56,13 @@ class BackendRequestHandler(SimpleHTTPRequestHandler):
             )
             raise InvalidRequestError(msg)
         DB_CONNECTION.insert_todo(new_todo_item)
-        resp_data = {"message": "POST request received", "data": decoded_post_data}
-        self.wfile.write(json.dumps(resp_data).encode("utf-8"))
+        resp_data = json.dumps(
+            {"message": "POST request received", "data": decoded_post_data}
+        ).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        self.wfile.write(resp_data)
 
 
 if __name__ == "__main__":

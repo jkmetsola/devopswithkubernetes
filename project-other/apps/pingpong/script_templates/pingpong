@@ -13,12 +13,12 @@ class PingPongRequestHandler(SimpleHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802
         """Handle GET request and serve the counter value."""
-        response = json.dumps({"pongs": DB_CONNECTION.get_counter_value()})
+        response = json.dumps({"pongs": DB_CONNECTION.get_counter_value()}).encode()
+        DB_CONNECTION.increment_counter_value()
         self.send_response(200)
         self.send_header("Content-type", "application/json")
         self.end_headers()
-        self.wfile.write(response.encode())
-        DB_CONNECTION.increment_counter_value()
+        self.wfile.write(response)
 
 
 if __name__ == "__main__":
