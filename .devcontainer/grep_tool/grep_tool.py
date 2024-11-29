@@ -8,7 +8,7 @@ import json
 import shutil
 import subprocess
 import sys
-from typing import Generator
+from typing import Generator  # noqa: UP035
 
 from logger import logger
 from whitelist_parser import WhiteListFileParser
@@ -159,7 +159,7 @@ class GitFilesGrepTool(GitFilesCommandLineTool):
             "modified": 1,
         }
         verdicts = []
-        for key in generators_map:
+        for key in generators_map:  # noqa: PLC0206
             for changed_file, matches, verdict, output in self._process_matches(
                 generators_map[key],
                 desired_matches_map[key],
