@@ -1,0 +1,1 @@
+../../../../../base_templates/partial_templates/_deployment_spec_base.tpl

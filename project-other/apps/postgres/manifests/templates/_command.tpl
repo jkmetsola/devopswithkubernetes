@@ -1,0 +1,3 @@
+---
+{{- define "container.command" -}}
+{{- end -}}

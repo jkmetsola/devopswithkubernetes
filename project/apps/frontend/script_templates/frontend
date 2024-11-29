@@ -3,9 +3,9 @@
 """Simple server tool."""
 
 import http.server
-import socketserver
-import sys
 from pathlib import Path
+
+from tcpserver import TCPServerLauncher
 
 
 class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
@@ -35,15 +35,5 @@ class RequestHandler(http.server.SimpleHTTPRequestHandler):  # noqa: D101
             self.wfile.write(file.read().encode("utf-8"))
 
 
-class FrontendServer:  # noqa: D101
-    @staticmethod
-    def run(port: int) -> None:
-        """Start the server."""
-        with socketserver.TCPServer(("", port), RequestHandler) as httpd:
-            sys.stdout.write(f"Server started in port {port}\n")
-            sys.stdout.flush()
-            httpd.serve_forever()
-
-
 if __name__ == "__main__":
-    FrontendServer.run(int("{{.appPort}}"))
+    TCPServerLauncher.run(int("{{.appPort}}"), RequestHandler)

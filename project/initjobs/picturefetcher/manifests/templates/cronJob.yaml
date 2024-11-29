@@ -15,37 +15,14 @@ spec:
         spec:
           restartPolicy: OnFailure
           containers:
-            - name: {{index .containerNames 0}}
-              # yamllint disable-line rule:line-length
-              image: "{{.imageRegistry}}/{{index .containerNames 0}}:{{.versionTag}}"
-              imagePullPolicy: {{.imagePullPolicy}}
-              command:
-                - "/bin/bash"
-                - "{{.tempScriptVolumeMountPath}}/{{index .containerNames 0}}"
-              resources:
-                limits:
-                  memory: "128Mi"
-                  cpu: "500m"
-                requests:
-                  memory: "64Mi"
-                  cpu: "250m"
-              volumeMounts:
+              {{- include "container.base" $ | indent 4}}
+              {{- include "security.context" $ | indent 4}}
+              {{- include "volumemounts.base" $ | indent 4}}
                 - name: {{.sharedPersistentVolumeName}}
                   mountPath: {{.sharedVolumeMountPath}}
                   readOnly: false
-                - name: {{.tempStartupScriptVolumeName}}
-                  mountPath: {{.tempScriptVolumeMountPath}}
-                  readOnly: true
-              securityContext:
-                readOnlyRootFilesystem: true
-                runAsUser: 1000
-                runAsNonRoot: true
-          volumes:
+            {{- include "volumes.base" $ | indent 4}}
             - name: {{.sharedPersistentVolumeName}}
               persistentVolumeClaim:
                 claimName: {{.sharedPersistentVolumeClaimName}}
-            - name: {{.tempStartupScriptVolumeName}}
-              configMap:
-                name: {{index .containerNames 0}}
-                defaultMode: 0755
 {{- end}}

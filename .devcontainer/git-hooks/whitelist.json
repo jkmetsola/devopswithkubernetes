@@ -22,6 +22,7 @@
         "^.*/Dockerfile$",
         "^.*/manifests/.*",
         "^.*/script_templates/.*",
-        "^.*/templates/.*yaml$"
+        "^.*/templates/.*yaml$",
+        "^.*tpl$"
     ]
 }

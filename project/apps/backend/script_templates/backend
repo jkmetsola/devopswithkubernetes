@@ -2,20 +2,19 @@
 
 """Simple server tool."""
 
-import http.server
 import json
-import socketserver
-import sys
+from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
 
 from backend_dbhandler import BackendDatabaseHandler
+from tcpserver import TCPServerLauncher
 
 
 class InvalidRequestError(Exception):
     """Exception raised when server gets invalid request."""
 
 
-class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
+class BackendRequestHandler(SimpleHTTPRequestHandler):
     """Request handler that serves the content of a xxxxx file."""
 
     IMAGEFILE_PATH = (
@@ -62,16 +61,6 @@ class BackendRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(resp_data).encode("utf-8"))
 
 
-class BackendServer:  # noqa: D101
-    @staticmethod
-    def run(port: int) -> None:
-        """Start the server."""
-        with socketserver.TCPServer(("", port), BackendRequestHandler) as httpd:
-            sys.stdout.write(f"Server started in port {port}\n")
-            sys.stdout.flush()
-            httpd.serve_forever()
-
-
 if __name__ == "__main__":
     DB_CONNECTION = BackendDatabaseHandler()
-    BackendServer.run(int("{{.appPort}}"))
+    TCPServerLauncher.run(int("{{.appPort}}"), BackendRequestHandler)
