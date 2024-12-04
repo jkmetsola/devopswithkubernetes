@@ -2,6 +2,7 @@
 set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
+DEFAULT_DWK_TAG=jkmetsola/dwk-deploy:latest
 
 update_linux_package_versions() {
   docker run --rm \
@@ -25,7 +26,7 @@ setup_env(){
 
 perform_package_updates_if_needed(){
   set -x
-  test_devenv_build_cmd="$(xargs -a "${TEMP_BUILDARG_FILE}" -I {} echo docker build {} -t "$1" "$WORKSPACE_FOLDER")"
+  test_devenv_build_cmd="$(xargs -a "${TEMP_BUILDARG_FILE}" -I {} echo docker build {} -t "$1" -t "$DEFAULT_DWK_TAG" "$WORKSPACE_FOLDER")"
   set +x
   if ! eval "$test_devenv_build_cmd" ; then
     echo "Updating linux package versions to files..."
@@ -35,5 +36,5 @@ perform_package_updates_if_needed(){
 
 source "$WORKSPACE_FOLDER"/.devcontainer/configureDotEnv.sh
 setup_env
-perform_package_updates_if_needed "${1:-jkmetsola/dwk-deploy:latest}"
+perform_package_updates_if_needed "${1:-$DEFAULT_DWK_TAG}"
 echo "Initialisation complete."

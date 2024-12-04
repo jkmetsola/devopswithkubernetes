@@ -1,0 +1,14 @@
+---
+name: Delete branch
+description: Delete deployments related to branch
+inputs:
+  project:
+    description: "The project to delete"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |-
+        source .devcontainer/setupEnv.sh
+        kubectl delete ${{ inputs.project }}-"$VERSION_BRANCH"

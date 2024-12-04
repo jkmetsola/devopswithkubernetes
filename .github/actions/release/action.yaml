@@ -1,0 +1,13 @@
+---
+name: Deploy branch
+description: Deploy branch
+inputs:
+  project:
+    description: "The project to launch"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |-
+        tools/launch_project.sh ${{ inputs.project }}
