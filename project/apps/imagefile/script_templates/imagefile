@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+
+"""Simple server tool."""
+
+from http.server import SimpleHTTPRequestHandler
+
+from imagefile_dbhandler import ImageFileDatabaseHandler
+from tcpserver import TCPServerLauncher
+
+
+class ImageFileRequestHandler(SimpleHTTPRequestHandler):
+    """Request handler that serves the content of a xxxxx file."""
+
+    def do_GET(self) -> None:  # noqa: N802
+        """Handle GET request."""
+        imagefile_bytes = DB_CONNECTION.get_imagefile()
+        self.send_response(200)
+        if self.path.endswith("/healthz"):
+            self.end_headers()
+        else:
+            self.send_header("Content-type", "image/png")
+            self.end_headers()
+            self.wfile.write(imagefile_bytes)
+
+
+if __name__ == "__main__":
+    DB_CONNECTION = ImageFileDatabaseHandler()
+    TCPServerLauncher.run(int("{{.appPort}}"), ImageFileRequestHandler)

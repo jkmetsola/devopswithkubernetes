@@ -1,6 +1,10 @@
 ---
 containerNames:
-  - todoappender
+  - imagefile
+serviceName: imagefile-svc
+clusterPort: 1016
+appPort: 3016
+probePath: /healthz
 depValues:
   project-other:
     databases:
@@ -10,6 +14,7 @@ depValues:
         - containerNames
 depValuesNoRoute:
   project:
-    apps:
-      backend:
+    initjobs:
+      picturefetcher:
+        - dbItemId
         - dbTableName

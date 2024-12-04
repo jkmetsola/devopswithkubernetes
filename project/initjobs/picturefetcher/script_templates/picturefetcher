@@ -1,5 +1,26 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env python3
+"""Fetches a random picture from the internet and saves it as a JPEG file."""
 
-wget -O "{{.sharedVolumeMountPath}}/{{.randomPictureFileName}}" \
-    "https://picsum.photos/1200"
+import urllib.request
+
+from imagefile_dbhandler import ImageFileDatabaseHandler
+
+
+class ImageFileTool:
+    """Fetches a random picture from the internet and save it as a JPEG file."""
+
+    @staticmethod
+    def fetch_random_picture() -> bytes:  # noqa: D102
+        with urllib.request.urlopen("https://picsum.photos/1200") as response:
+            return response.read()
+
+    @staticmethod
+    def upload_file_to_db(picture_bytes: bytes) -> None:  # noqa: D102
+        db_handler = ImageFileDatabaseHandler()
+        db_handler.update_imagefile(picture_bytes)
+
+
+if __name__ == "__main__":
+    tool = ImageFileTool()
+    picture_bytes = tool.fetch_random_picture()
+    tool.upload_file_to_db(picture_bytes)

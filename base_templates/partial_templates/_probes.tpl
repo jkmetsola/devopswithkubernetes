@@ -3,7 +3,7 @@
           {{- with .Values}}
           readinessProbe: &probe
             httpGet:
-              path: /
+              path: {{.probePath | default "/"}}
               port: {{.appPort}}
             initialDelaySeconds: 5
             periodSeconds: 10

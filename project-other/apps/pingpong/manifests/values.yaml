@@ -8,7 +8,7 @@ dbTableName: counter
 dbCounterTableItemId: 1
 depValues:
   project-other:
-    apps:
+    databases:
       postgres:
         - serviceName
         - appPort

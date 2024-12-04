@@ -4,7 +4,7 @@
 import json
 from http.server import SimpleHTTPRequestHandler
 
-from pingpong_dbhandler import PingPongDataBaseHandler
+from pingpong_dbhandler import PingPongDatabaseHandler
 from tcpserver import TCPServerLauncher
 
 
@@ -22,6 +22,6 @@ class PingPongRequestHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    DB_CONNECTION = PingPongDataBaseHandler()
+    DB_CONNECTION = PingPongDatabaseHandler()
     DB_CONNECTION.increment_counter_value()
     TCPServerLauncher.run(int("{{.appPort}}"), PingPongRequestHandler)

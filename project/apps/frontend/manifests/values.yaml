@@ -6,11 +6,15 @@ fetchTodosScriptFile: fetchTodos.js
 serviceName: frontend-svc
 clusterPort: 1010
 appPort: 3010
+probePath: /healthz
 depValues:
   project:
     apps:
       backend:
         - containerNames
-    initjobs:
-      picturefetcher:
-        - randomPictureFileName
+        - serviceName
+        - clusterPort
+      imagefile:
+        - containerNames
+        - serviceName
+        - clusterPort

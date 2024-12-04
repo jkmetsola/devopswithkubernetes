@@ -1,4 +1,12 @@
 ---
 containerNames:
   - picturefetcher
-randomPictureFileName: random_picture.jpg
+dbItemId: 1
+dbTableName: images
+depValues:
+  project-other:
+    databases:
+      postgres:
+        - serviceName
+        - appPort
+        - containerNames

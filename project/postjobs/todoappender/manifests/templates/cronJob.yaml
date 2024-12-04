@@ -18,7 +18,7 @@ spec:
               {{- include "container.base" $ | indent 4}}
               envFrom:
                 - secretRef:
-                    name: {{index .apps.postgres.containerNames 0}}
+                    name: {{index .databases.postgres.containerNames 0}}
               {{- include "security.context" $ | indent 4}}
               {{- include "volumemounts.base" $ | indent 4}}
           {{- include "volumes.base" $ | indent 4}}

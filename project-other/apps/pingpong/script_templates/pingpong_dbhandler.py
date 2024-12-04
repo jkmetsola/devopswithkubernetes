@@ -1,7 +1,7 @@
-from dbhandler import DataBaseHandler  # noqa: D100, INP001
+from dbhandler import DatabaseHandler  # noqa: D100, INP001
 
 
-class PingPongDataBaseHandler(DataBaseHandler):
+class PingPongDatabaseHandler(DatabaseHandler):
     """Database connection handler."""
 
     def _init_table(self) -> None:

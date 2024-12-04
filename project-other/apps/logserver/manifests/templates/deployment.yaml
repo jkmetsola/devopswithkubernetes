@@ -28,7 +28,7 @@
                   key: MESSAGE
           envFrom:
             - secretRef:
-                name: {{index .apps.postgres.containerNames 0}}
+                name: {{index .databases.postgres.containerNames 0}}
           readinessProbe:
             exec:
               command:

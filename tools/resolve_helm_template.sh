@@ -11,16 +11,19 @@ source "${SETUP_ENV_PATH}" "false"
 
 APP_DIR="$1"
 APP_NAME="$(basename "$APP_DIR")"
-MANIFESTS_DIR="$1"/manifests
-APP_FILES_DIR="$1"/script_templates
-APP_ENV_FILE="$1"/.env
-VALUES_YAML_FILE=$MANIFESTS_DIR/values.yaml
-TEMP_DEP_VARS="$1"/manifests/dependency-values.yaml
+
+APP_FILES_DIR="$APP_DIR"/script_templates
+APP_ENV_FILE="$APP_DIR"/.env
+MANIFESTS_DIR="$APP_DIR"/manifests
+TEMPLATES_DIR="$MANIFESTS_DIR"/templates
+VALUES_YAML_FILE="$MANIFESTS_DIR"/values.yaml
+TEMP_DEP_VARS="$MANIFESTS_DIR"/dependency-values.yaml
 
 FULL_VALUES_YAML="$(mktemp --suffix .yaml)"
 TEMP_ERROR_LOG="$(mktemp --suffix .log)"
 TEMP_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
 FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
+TMP_PARTIAL_TEMPLATES_PREFIX=_tmp_
 
 get_deployment_specific_values_file(){
     cluster_name="$(kubectl config current-context)"
@@ -38,20 +41,36 @@ check_for_new_helm_errors() {
     fi
 }
 
+clean_tmp_partial_templates(){
+    find "$TEMPLATES_DIR/" -regex "^.*${TMP_PARTIAL_TEMPLATES_PREFIX}.*[.]tpl" -exec rm -f {} +
+}
+
+clean_copied_symlinks(){
+    find "$APP_DIR" -name "*.symlink" | while read -r file; do
+        basename=$(basename "$file" .symlink)
+        directory=$(dirname "$file")
+        if [[ -e "$directory/$basename" && -e "$directory/$basename.symlink" ]]; then
+            rm -f "$directory/$basename"
+        fi
+    done
+}
+
 cleanup() {
     check_for_new_helm_errors
     rm -f \
     "${TEMP_DEP_VARS}" \
     "${TEMP_PRODUCTION_YAML}" \
     "${TEMP_ERROR_LOG}" \
-    "${MANIFESTS_DIR}/templates/configMap.yaml" \
+    "${TEMPLATES_DIR}/configMap.yaml" \
     "${MANIFESTS_DIR}/Chart.yaml" \
     "${FULL_CONFIGMAP_TMP}"
+    clean_tmp_partial_templates
+    clean_copied_symlinks
 }
 
 build_configmap_if_needed() {
     if [[ -f "$APP_ENV_FILE" || -d "$APP_FILES_DIR" ]]; then
-        build_configmap_template > "${MANIFESTS_DIR}/templates/configMap.yaml"
+        build_configmap_template > "${TEMPLATES_DIR}/configMap.yaml"
     fi
 }
 
@@ -101,6 +120,16 @@ version: 0.1.0
 " > "${MANIFESTS_DIR}/Chart.yaml"
 }
 
+copy_partial_templates(){
+    for file in "$BASE_TEMPLATES_DIR"/*; do
+        filename=$(basename "$file")
+        dest_file="$TEMPLATES_DIR/${TMP_PARTIAL_TEMPLATES_PREFIX}${filename}"
+        if [[ ! -e "$TEMPLATES_DIR/$filename" ]]; then
+            cp "$file" "$dest_file"
+        fi
+    done
+}
+
 resolve_template() {
     temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
     trap 'cleanup' EXIT
@@ -140,6 +169,7 @@ main() {
 
     create_chart_file
     build_configmap_if_needed
+    copy_partial_templates
     resolve_template
 }
 
