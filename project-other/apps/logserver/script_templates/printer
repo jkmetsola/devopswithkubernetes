@@ -9,7 +9,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from pingpong_dbhandler import PingPongDataBaseHandler
+from pingpong_dbhandler import PingPongDatabaseHandler
 
 
 class RandomStringPrinter:
@@ -23,7 +23,7 @@ class RandomStringPrinter:
     @staticmethod
     def run(logfile: str) -> None:
         """Print a random string every 5 seconds."""
-        db_connection = PingPongDataBaseHandler()
+        db_connection = PingPongDatabaseHandler()
         while True:
             random_string = (
                 RandomStringPrinter._generate_random_string() + "\n"

@@ -1,1 +1,0 @@
-../../../../../base_templates/partial_templates/_probes.tpl

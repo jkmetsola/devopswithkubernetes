@@ -52,7 +52,27 @@ docker_build_cmd() {
         --target "${container}" \
         -t "$image_tag" \
         "${app}" \
-        > "$tmp_docker_build_log" 2>&1
+        > "$TMP_DOCKER_BUILD_LOG" 2>&1
+}
+
+docker_build_image(){
+    app=$1
+    container=$2
+    tag=$3
+    if ! docker_build_cmd "$app" "$container" "$tag"; then
+        cat "$TMP_DOCKER_BUILD_LOG"
+        return 1
+    fi
+}
+
+docker_push_image() {
+    if [[ "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
+        remote_digests="$(docker image inspect "$image_tag-remote" -f '{{.RepoDigests}}')"
+        local_digests="$(docker image inspect "$image_tag" -f '{{.RepoDigests}}')"
+        if [[ "$local_digests" != "$remote_digests" ]]; then
+            docker push "$image_tag"
+        fi
+    fi
 }
 
 build_images_for_app() {
@@ -60,18 +80,16 @@ build_images_for_app() {
         image_tag="$(get_full_tag "${container}")"
         image_sha="$(get_image_sha "${image_tag}")"
         "${SYMLINK_TOOL}" "${PWD}/$1"
-        tmp_docker_build_log=$(mktemp)
-        if ! docker_build_cmd "$1" "$container" "$image_tag"; then
-            cat "$tmp_docker_build_log"
-            return 1
+        TMP_DOCKER_BUILD_LOG=$(mktemp)
+        docker_build_image "$1" "$container" "$image_tag"
+        if ! docker pull "$image_tag" | grep "Status: Image is up to date"; then
+            docker_build_image "$1" "$container" "$image_tag" || return 1
+            docker_push_image
         fi
         if [[ "${image_sha}" != "$(get_image_sha "${image_tag}")" ]]; then
             import_image_to_cluster "$image_tag"
         elif ! image_available "${image_tag}"; then
             import_image_to_cluster "$image_tag"
-        fi
-        if [[ "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
-            docker push "$image_tag"
         fi
     done
 }
@@ -104,13 +122,6 @@ sorted_apps() {
     echo "$tmp_sorted_apps_file"
 }
 
-deploy_non_image_folders() {
-    mapfile -t OTHER_APPS < "$(sorted_apps)"
-    for other_app in "${OTHER_APPS[@]}"; do
-        apply_manifests "$other_app"
-    done
-}
-
 deploy_cronjobs() {
     mapfile -t JOB_NAMES < "$(sorted_apps)"
     for job in "${JOB_NAMES[@]}"; do
@@ -135,19 +146,23 @@ wait_for_pod() {
 }
 
 init_project() {
-    kubectl delete namespace --now "$1" || true
-    kubectl create namespace "$1"
-    kubectl config set-context --current --namespace="$1"
+    if [[ $VERSION_BRANCH = "main" && "$1" = "project" ]]; then
+        namespace="default"
+    else
+        namespace="$1-$VERSION_BRANCH"
+    fi
+    kubectl create namespace "$namespace" || kubectl get namespace "$namespace"
+    kubectl config set-context --current --namespace="$namespace"
 }
 
 launch_projects() {
     if [[ "${1:-}" == "$(basename "${PROJECT_FOLDER}")" ]]; then
-        (cd "${PROJECT_FOLDER}"/volumes && deploy_non_image_folders)
+        (cd "${PROJECT_FOLDER}"/databases && deploy_apps)
         (cd "${PROJECT_FOLDER}"/initjobs && deploy_cronjobs)
         (cd "${PROJECT_FOLDER}"/apps && deploy_apps)
         (cd "${PROJECT_FOLDER}"/postjobs && deploy_cronjobs)
     elif [[ "${1:-}" == "$(basename "${PROJECT_OTHER_FOLDER}")" ]]; then
-        (cd "${PROJECT_OTHER_FOLDER}"/volumes && deploy_non_image_folders)
+        (cd "${PROJECT_FOLDER}"/databases && deploy_apps)
         (cd "${PROJECT_OTHER_FOLDER}"/apps && deploy_apps)
     fi
     kubectl cluster-info
@@ -162,13 +177,14 @@ main() {
 
     if [[ "${1}" == "$(basename "${PROJECT_FOLDER}")" || "${1}" == "$(basename "${PROJECT_OTHER_FOLDER}")" ]]; then
         init_project "$1"
+        kubectl delete all --all -n "$namespace"
         launch_projects "$1"
         exit 0
     fi
 
     if [[ -n "${1:-}" ]]; then
         app="$(basename "$1")"
-        kubectl config set-context --current --namespace="$(basename "$(realpath "$1/../..")")"
+        init_project "$(basename "$(realpath "$1/../..")")"
         cd "${WORKSPACE_FOLDER}/$1/.."
         if ! build_and_apply "$app"; then
             echo "Error: Failed to deploy $1" >&2

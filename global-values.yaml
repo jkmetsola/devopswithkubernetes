@@ -1,7 +1,4 @@
 ---
-sharedPersistentVolumeName: shared-volume
-sharedPersistentVolumeClaimName: shared-volume-claim
-sharedVolumeMountPath: /shared-volume
 tempStartupScriptVolumeName: temp-startup-script-volume
 tempScriptVolumeMountPath: /app-scripts
 imageRegistry: europe-north1-docker.pkg.dev/dwk-gke-440513/dwk

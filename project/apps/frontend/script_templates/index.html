@@ -18,8 +18,7 @@
         <button type="submit">Submit</button>
     </form>
     <h2>Random Image</h2>
-    <img src="/{{index .apps.backend.containerNames 0}}{{.sharedVolumeMountPath}}/{{.initjobs.picturefetcher.randomPictureFileName}}"
-        alt="Embedded Image">
+    <img src="/{{index .apps.imagefile.containerNames 0}}" alt="Embedded Image">
 </body>
 
 </html>

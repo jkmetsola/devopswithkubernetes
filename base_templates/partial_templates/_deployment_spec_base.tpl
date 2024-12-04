@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: {{index .containerNames 0}}
 spec:
-  replicas: 1
+  replicas: {{.replicas | default 1}}
   selector:
     matchLabels:
       app: {{index .containerNames 0}}

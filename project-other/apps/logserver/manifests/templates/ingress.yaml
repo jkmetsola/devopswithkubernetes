@@ -1,1 +1,13 @@
-../../../../../base_templates/templates/ingress.yaml
+---
+{{- with .Values}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{index .containerNames 0}}-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          {{- template "ingress.path" $.Values}}
+          {{- template "ingress.path" $.Values.apps.pingpong}}
+{{- end}}

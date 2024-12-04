@@ -3,17 +3,12 @@ containerNames:
   - backend
   - backend-debug
 serviceName: backend-svc
-ingressClassName: backend-ingress-class
 clusterPort: 1015
 appPort: 3015
 dbTableName: todos
 depValues:
-  project:
-    initjobs:
-      picturefetcher:
-        - randomPictureFileName
   project-other:
-    apps:
+    databases:
       postgres:
         - serviceName
         - appPort

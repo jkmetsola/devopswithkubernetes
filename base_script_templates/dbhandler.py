@@ -5,16 +5,16 @@ import os
 import psycopg2
 
 
-class DataBaseHandler:
+class DatabaseHandler:
     """Database connection handler."""
 
     def __init__(self) -> None:
         """Initialise database connection."""
         self.conn = psycopg2.connect(
-            host="{{.apps.postgres.serviceName}}",
-            port="{{.apps.postgres.appPort}}",
-            dbname="{{index .apps.postgres.containerNames 0}}",
-            user="{{index .apps.postgres.containerNames 0}}",
+            host="{{.databases.postgres.serviceName}}",
+            port="{{.databases.postgres.appPort}}",
+            dbname="{{index .databases.postgres.containerNames 0}}",
+            user="{{index .databases.postgres.containerNames 0}}",
             password=os.environ["POSTGRES_PASSWORD"],
         )
         if not self._table():

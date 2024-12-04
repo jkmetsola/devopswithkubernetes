@@ -1,0 +1,11 @@
+---
+clusterPort: 1050
+depValuesNoRoute:
+  project-other:
+    databases:
+      postgres:
+        - containerNames
+        - appPort
+        - serviceName
+        - dbMountPath
+        - dbVolumeName

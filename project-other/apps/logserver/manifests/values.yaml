@@ -11,10 +11,15 @@ appPort: 3030
 informationFile: information.txt
 depValues:
   project-other:
-    apps:
+    databases:
       postgres:
         - serviceName
         - appPort
+        - containerNames
+    apps:
+      pingpong:
+        - serviceName
+        - clusterPort
         - containerNames
 depValuesNoRoute:
   project-other:
