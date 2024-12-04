@@ -1,0 +1,9 @@
+---
+name: Deploy branch
+description: Deploy branch
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |-
+        tools/launch_project.sh project-other
