@@ -67,11 +67,7 @@ docker_build_image(){
 
 docker_push_image() {
     if [[ "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
-        remote_digests="$(docker image inspect "$image_tag-remote" -f '{{.RepoDigests}}')"
-        local_digests="$(docker image inspect "$image_tag" -f '{{.RepoDigests}}')"
-        if [[ "$local_digests" != "$remote_digests" ]]; then
-            docker push "$image_tag"
-        fi
+        docker push "$image_tag"
     fi
 }
 

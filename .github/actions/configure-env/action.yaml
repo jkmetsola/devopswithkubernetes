@@ -1,0 +1,17 @@
+---
+name: Configure Environment
+description: Configures the environment for gcloud
+runs:
+  using: "composite"
+  steps:
+    - shell: bash
+      run: |-
+        tools/gh-workflows/authenticate_service_user.sh
+        gcloud --quiet auth configure-docker europe-north1-docker.pkg.dev
+        gcloud config set project dwk-gke-440513
+        gcloud config set compute/zone europe-north1-b
+        gcloud container clusters get-credentials dwk-cluster
+        tools/gh-workflows/generate_age_key.sh
+        git config --global --add safe.directory \
+          /__w/devopswithkubernetes/devopswithkubernetes
+        tools/gh-workflows/generate_dot_env.sh

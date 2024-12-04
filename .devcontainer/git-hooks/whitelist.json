@@ -23,6 +23,7 @@
         "^.*/manifests/.*",
         "^.*/script_templates/.*",
         "^.*/templates/.*yaml$",
-        "^.*tpl$"
+        "^.*tpl$",
+        "^[.]github/.*$"
     ]
 }
