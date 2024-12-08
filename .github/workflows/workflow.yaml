@@ -41,6 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/configure-env
+      - run: tools/gh-workflows/run_static_code_analysis.sh
       - name: Delete branch namespace
         if: ${{ github.event_name == 'delete' }}
         uses: ./.github/actions/delete
