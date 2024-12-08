@@ -5,8 +5,14 @@ kind: Ingress
 metadata:
   name: {{index .containerNames 0}}-ingress
 spec:
+  defaultBackend:
+    service:
+      name: {{.serviceName}}
+      port:
+        number: {{.clusterPort}}
   rules:
     - http:
+        # Path for this application also accessible via default backend.
         paths:
           {{- template "ingress.path" $.Values}}
           {{- template "ingress.path" $.Values.apps.backend}}
