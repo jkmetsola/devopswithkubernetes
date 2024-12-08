@@ -8,18 +8,17 @@
         ".vscode/settings.json",
         ".yamllint",
         "base_script_templates/dbhandler.py",
-        "Dockerfile",
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
-        "README.md",
-        "tools/launch_cluster.sh"
+        "tools/launch_cluster.sh",
+        ".devcontainer/git-hooks/pre-commit.sh"
     ],
     "patterns": [
         "^.*[.]symlink$",
         "^.*/__init__.py$",
         "^.*/.env$",
         "^.*/[0-9]{2}[.]order$",
-        "^.*/Dockerfile$",
+        "^.*/.*/Dockerfile$",
         "^.*/manifests/.*",
         "^.*/script_templates/.*",
         "^.*/templates/.*yaml$",

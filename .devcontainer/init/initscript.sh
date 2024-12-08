@@ -2,7 +2,10 @@
 set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
-DEFAULT_DWK_TAG=jkmetsola/dwk-deploy:latest
+IMAGE_CACHE=jkmetsola/dwk-deploy:buildcache
+if [[ "${EXPORT_IMAGE_CACHE:-}" = "true" ]]; then
+  CACHE_EXPORT_FLAG="--builder=mybuilder --cache-to=type=registry,ref=$IMAGE_CACHE,mode=max "
+fi
 
 update_linux_package_versions() {
   docker run --rm \
@@ -26,7 +29,13 @@ setup_env(){
 
 perform_package_updates_if_needed(){
   set -x
-  test_devenv_build_cmd="$(xargs -a "${TEMP_BUILDARG_FILE}" -I {} echo docker build {} -t "$1" -t "$DEFAULT_DWK_TAG" "$WORKSPACE_FOLDER")"
+  # No space after CACHE_EXPORT_FLAG is with intention.
+  test_devenv_build_cmd="$(xargs -a "${TEMP_BUILDARG_FILE}" -I {} echo \
+      docker buildx build {} \
+      --cache-from=type=registry,ref=$IMAGE_CACHE \
+      "${CACHE_EXPORT_FLAG:-}"\
+      -t "$1" \
+      "$WORKSPACE_FOLDER")"
   set +x
   if ! eval "$test_devenv_build_cmd" ; then
     echo "Updating linux package versions to files..."
@@ -36,5 +45,5 @@ perform_package_updates_if_needed(){
 
 source "$WORKSPACE_FOLDER"/.devcontainer/configureDotEnv.sh
 setup_env
-perform_package_updates_if_needed "${1:-$DEFAULT_DWK_TAG}"
+perform_package_updates_if_needed "${1:-jkmetsola/dwk-deploy:latest}"
 echo "Initialisation complete."

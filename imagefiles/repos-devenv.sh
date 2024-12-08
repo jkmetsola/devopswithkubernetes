@@ -21,6 +21,16 @@ configure_google_cloud_cli() {
         | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
 }
 
+configure_docker_repo(){
+    curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+    chmod a+r /etc/apt/keyrings/docker.asc
+    echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null
+}
+
 configure_kubectl_repo
 configure_helm_repo
 configure_google_cloud_cli
+configure_docker_repo
