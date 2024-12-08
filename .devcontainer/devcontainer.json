@@ -16,7 +16,10 @@
             "REPOS_DEVENV_FILE": "imagefiles/repos-devenv.sh",
             "CONFIGURE_DEVUSER_FILE": "imagefiles/configure-devuser.sh",
             "DEVUSER": "devroot"
-        }
+        },
+        "options": [
+            "--cache-from=type=registry,ref=jkmetsola/dwk-deploy:buildcache"
+        ]
     },
     "workspaceFolder": "/dev-env/${localWorkspaceFolderBasename}",
     "mounts": [

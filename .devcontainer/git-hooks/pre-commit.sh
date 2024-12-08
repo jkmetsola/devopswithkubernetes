@@ -123,6 +123,10 @@ test_no_broken_links(){
     fi
 }
 
+lint_github_files(){
+    actionlint
+}
+
 check_whitespace_error
 check_linefeed_eof
 check_usage_of_modified_files
@@ -134,6 +138,7 @@ lint_docker_files
 lint_html_files
 lint_js_files
 test_no_broken_links
+lint_github_files
 
 if [[ -n "${SKIP_LAUNCH_TESTS:-}" || "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
     exit 0

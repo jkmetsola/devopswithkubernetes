@@ -7,9 +7,9 @@ install_hadolint() {
 }
 
 install_actionlint() {
-    wget --progress=dot:giga https://github.com/rhysd/actionlint/releases/download/v1.6.27/actionlint_1.6.27_linux_amd64.tar.gz
+    wget --progress=dot:giga https://github.com/rhysd/actionlint/releases/download/v1.7.4/actionlint_1.7.4_linux_amd64.tar.gz
     mkdir actionlint_folder
-    tar -xf actionlint_1.6.27_linux_amd64.tar.gz -C actionlint_folder
+    tar -xf actionlint_1.7.4_linux_amd64.tar.gz -C actionlint_folder
     mv actionlint_folder/actionlint /usr/local/bin/
     rm -rf actionlint_folder
     chmod +x /usr/local/bin/actionlint
