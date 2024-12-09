@@ -9,4 +9,7 @@ runs:
   using: "composite"
   steps:
     - shell: bash
-      run: tools/gh-workflows/delete_branch_namespace.sh "${{ inputs.project }}"
+      run: |-
+        full_ref="${{ github.event.ref }}"
+        export GITHUB_EVENT_REF="${full_ref#refs/heads/}"
+        tools/gh-workflows/delete_branch_namespace.sh "${{ inputs.project }}"
