@@ -26,7 +26,7 @@ jobs:
     needs: build-container
     strategy:
       matrix:
-        job: [project, project-other]
+        job: [project, project-other, static-code-check]
     container:
       image: jkmetsola/dwk-deploy:${{ github.sha }}
       options: --user=root
@@ -35,15 +35,24 @@ jobs:
         SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: ./.github/actions/configure-env
+
       - run: tools/gh-workflows/run_static_code_analysis.sh
+        if: matrix.job == 'static-code-check'
+
       - name: Delete branch namespace
-        if: ${{ github.event_name == 'delete' }}
+        if: |
+          github.event_name == 'delete' &&
+          (matrix.job == 'project' || matrix.job == 'project-other')
         uses: ./.github/actions/delete
         with:
           project: ${{ matrix.job }}
+
       - name: Deploy branch
-        if: ${{ github.event_name == 'push' }}
+        if: |
+          github.event_name == 'push' &&
+          (matrix.job == 'project' || matrix.job == 'project-other')
         uses: ./.github/actions/release
         with:
           project: ${{ matrix.job }}
