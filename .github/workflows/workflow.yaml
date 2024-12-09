@@ -33,6 +33,7 @@ jobs:
       env:
         GKE_SA_KEY: ${{ secrets.GKE_SA_KEY }}
         SOPS_AGE_KEY: ${{ secrets.SOPS_AGE_KEY }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
     steps:
       - uses: actions/checkout@v4
 
