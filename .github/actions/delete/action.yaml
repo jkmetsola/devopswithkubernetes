@@ -9,6 +9,4 @@ runs:
   using: "composite"
   steps:
     - shell: bash
-      run: |-
-        source .devcontainer/setupEnv.sh
-        kubectl delete ${{ inputs.project }}-"$VERSION_BRANCH"
+      run: tools/gh-workflows/delete_branch_namespace.sh "${{ inputs.project }}"
