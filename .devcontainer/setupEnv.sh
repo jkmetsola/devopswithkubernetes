@@ -43,7 +43,8 @@ define_global_vars(){
   export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
   PROJECT_ID="$(gcloud config list --format='value(core.project)')" || true
   export PROJECT_ID
-  VERSION_BRANCH="$(git rev-parse --abbrev-ref HEAD | tr '/' '-')"
+  GIT_BRANCH="${GITHUB_REF_NAME:-"$(git rev-parse --abbrev-ref HEAD)}"}"
+  VERSION_BRANCH="$(echo "$GIT_BRANCH" | tr '/' '-')"
   export VERSION_BRANCH
   VERSION_TAG="$VERSION_BRANCH-$(git rev-parse HEAD)"
   export VERSION_TAG
