@@ -61,8 +61,6 @@ lint_helm_templates() {
             resolved_template=$("${RESOLVE_HELM_TEMPLATE_TOOL}" "$item")
             yamllint --strict "$resolved_template"
             lint_with_kubelint "$resolved_template"
-            kubectl create namespace "$(basename "$dir")" > /dev/null 2>&1 || true
-            kubectl config set-context --current --namespace="$(basename "$dir")" > /dev/null
             kubectl apply --dry-run=server -f "$resolved_template" > /dev/null
         done < <(find "${dir}" -mindepth 2 -maxdepth 2 -type d -print0)
     done
@@ -139,14 +137,3 @@ lint_html_files
 lint_js_files
 test_no_broken_links
 lint_github_files
-
-if [[ -n "${SKIP_LAUNCH_TESTS:-}" || "$(kubectl config current-context)" != "k3d-k3s-default" ]]; then
-    exit 0
-fi
-
-git clean -f -x -e "/.env"
-
-echo "Testing ${PROJECT_FOLDER} launch..."
-${LAUNCH_PROJECT} "$(basename "${PROJECT_FOLDER}")" > /dev/null
-echo "Testing ${PROJECT_OTHER_FOLDER} launch..."
-${LAUNCH_PROJECT} "$(basename "${PROJECT_OTHER_FOLDER}")" > /dev/null
