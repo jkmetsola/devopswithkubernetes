@@ -1,6 +1,6 @@
 {
     "editor.rulers": [
-        100
+        85
     ],
     "files.autoSave": "onFocusChange",
     "editor.formatOnSave": true,
