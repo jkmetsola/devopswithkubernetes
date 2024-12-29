@@ -87,7 +87,7 @@ lint_other_yaml_files() {
         -a \
         ! -path "${BASE_TEMPLATES_FOLDER}/*" \
         \) \
-        -print0 | xargs -0 yamllint
+        -print0 | xargs -0 yamllint --strict
 }
 
 lint_docker_files() {

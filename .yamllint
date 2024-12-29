@@ -5,3 +5,6 @@ rules:
   line-length:
     max: 90
     allow-non-breakable-inline-mappings: true
+  comments:
+    level: warning
+    min-spaces-from-content: 1
