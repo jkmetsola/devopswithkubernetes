@@ -1,0 +1,37 @@
+---
+{{- with .Values}}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{index .containerNames 0}}
+spec:
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            job: {{index .containerNames 0}}
+        spec:
+          restartPolicy: OnFailure
+          containers:
+              {{- include "container.base" $ | indent 4}}
+              envFrom:
+                - secretRef:
+                    name: {{index .databases.postgres.containerNames 0}}
+              {{- include "security.context" $ | indent 4}}
+              {{- include "volumemounts.base" $ | indent 4}}
+              {{- include "volumemounts.secret" $ | indent 4}}
+                - name: gsc-volume
+                  mountPath: /mnt/gcs
+                  subPath: gcs
+                  readOnly: false
+                - name: gsc-volume
+                  mountPath: /mnt/gcs-tmp
+                  subPath: gcs-tmp
+                  readOnly: false
+          {{- include "volumes.base" $ | indent 4}}
+          {{- include "volumes.secret" $ | indent 4}}
+            - name: gsc-volume
+              emptyDir: {}
+{{- end}}
