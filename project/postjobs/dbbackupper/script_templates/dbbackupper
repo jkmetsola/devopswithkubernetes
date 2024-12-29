@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+gcsfuse \
+    --key-file /etc/secrets/"{{index .containerNames 0}}" \
+    --temp-dir /mnt/gcs-tmp \
+    project-postgres-backup \
+    /mnt/gcs
+
+export PGPASSWORD="$POSTGRES_PASSWORD"
+pg_dump \
+    -h "{{.databases.postgres.serviceName}}" \
+    -p "{{.databases.postgres.appPort}}" \
+    -U "{{index .databases.postgres.containerNames 0}}" \
+    -d "{{index .databases.postgres.containerNames 0}}" \
+    --password \
+    > /mnt/gcs/backup.sql

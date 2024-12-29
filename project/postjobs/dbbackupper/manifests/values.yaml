@@ -1,0 +1,10 @@
+---
+containerNames:
+  - dbbackupper
+depValues:
+  project-other:
+    databases:
+      postgres:
+        - serviceName
+        - appPort
+        - containerNames

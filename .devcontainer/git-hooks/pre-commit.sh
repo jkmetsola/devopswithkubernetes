@@ -45,8 +45,20 @@ lint_sh_files() {
 }
 
 lint_with_kubelint(){
-    if ! kubelint_output="$(kube-linter lint --with-color "$1" 2>&1)"; then
-        if ! echo "$kubelint_output" | grep "postgres apps/v1, Kind=StatefulSet" > /dev/null; then
+    if ! kubelint_output="$(kube-linter lint "$1" 2>&1)"; then
+        exclusion_patterns=(
+            "KubeLinter $(kube-linter version)"
+            "postgres apps/v1, Kind=StatefulSet.*check: no-read-only-root-fs"
+            "postgres apps/v1, Kind=StatefulSet.*check: run-as-non-root"
+            "dbbackupper batch/v1, Kind=CronJob.*check: privileged-container"
+            "dbbackupper batch/v1, Kind=CronJob.*check: privilege-escalation-container"
+            "dbbackupper batch/v1, Kind=CronJob.*check: run-as-non-root"
+            "Error: found.*lint errors"
+        )
+        for pattern in "${exclusion_patterns[@]}"; do
+            kubelint_output="$(echo "$kubelint_output" | grep -v "$pattern")"
+        done
+        if [[ -n "$kubelint_output" ]]; then
             echo "$kubelint_output"
             return 1
         fi

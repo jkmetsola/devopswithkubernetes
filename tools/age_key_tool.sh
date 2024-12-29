@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Useful command to convert yaml data values to base64:
+# yq eval -i '.data |= with_entries(.value |= @base64)' $secret_file
+
 set -euo pipefail
 
 export SOPS_AGE_KEY_FILE=~/.age/key
