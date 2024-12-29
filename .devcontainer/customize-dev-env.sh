@@ -18,4 +18,5 @@ git config --global pager.diff true
 " >> ~/.bashrc
 
 cp .devcontainer/git-hooks/pre-commit.sh .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+cp .devcontainer/git-hooks/post-commit.sh .git/hooks/post-commit
+chmod +x .git/hooks/pre-commit .git/hooks/post-commit
