@@ -22,14 +22,17 @@ get_container_names() {
 }
 
 get_image_sha() {
-    if image_sha="$(docker inspect --format='{{.Id}}' "$1")"; then
+    if image_sha="$(docker inspect --format='{{.Id}}' "$1" \
+        > /dev/null 2>&1 | grep -v "Error: No such object: ")"; then
         echo "$image_sha"
     fi
 }
 
 image_available() {
     if [ -z "${CI:-}" ]; then
-        docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null || return 1
+        docker exec k3d-k3s-default-agent-0 crictl inspecti "$1" > /dev/null 2>&1 \
+        | grep -v "Error: No such object: " \
+        || return 1
     fi
 }
 
@@ -78,7 +81,8 @@ build_images_for_app() {
         "${SYMLINK_TOOL}" "${PWD}/$1"
         TMP_DOCKER_BUILD_LOG=$(mktemp)
         docker_build_image "$1" "$container" "$image_tag"
-        if ! docker pull "$image_tag" | grep "Status: Image is up to date"; then
+        if [[ "$(kubectl config current-context)" == "k3d-k3s-default" ]] \
+            || ! docker pull "$image_tag" | grep "Status: Image is up to date"; then
             docker_build_image "$1" "$container" "$image_tag" || return 1
             docker_push_image
         fi
@@ -147,7 +151,9 @@ init_project() {
     else
         namespace="$1-$VERSION_BRANCH"
     fi
-    kubectl create namespace "$namespace" || kubectl get namespace "$namespace"
+    kubectl create namespace "$namespace" \
+        2> >(grep -v "Error from server (AlreadyExists):") \
+    || kubectl get namespace "$namespace"
     kubectl config set-context --current --namespace="$namespace"
 }
 
