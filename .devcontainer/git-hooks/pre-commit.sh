@@ -66,7 +66,7 @@ lint_with_kubelint(){
 }
 
 lint_helm_templates() {
-    local directories=("${PROJECT_FOLDER}" "${PROJECT_OTHER_FOLDER}")
+    local directories=("${PROJECT_FOLDER}" "${PROJECT_COMMON_FOLDER}" "${PROJECT_OTHER_FOLDER}")
     for dir in "${directories[@]}"; do
         while IFS= read -r -d '' item; do
             local resolved_template
@@ -84,6 +84,8 @@ lint_other_yaml_files() {
         ! -path "${PROJECT_FOLDER}/*" \
         -a \
         ! -path "${PROJECT_OTHER_FOLDER}/*" \
+        -a \
+        ! -path "${PROJECT_COMMON_FOLDER}/*" \
         -a \
         ! -path "${BASE_TEMPLATES_FOLDER}/*" \
         \) \

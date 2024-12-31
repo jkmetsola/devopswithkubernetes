@@ -7,7 +7,7 @@ appPort: 3020
 dbTableName: counter
 dbCounterTableItemId: 1
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName

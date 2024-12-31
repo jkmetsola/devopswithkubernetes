@@ -6,7 +6,7 @@ clusterPort: 1016
 appPort: 3016
 probePath: /healthz
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName

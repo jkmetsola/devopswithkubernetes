@@ -4,7 +4,7 @@ containerNames:
 dbItemId: 1
 dbTableName: images
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName
