@@ -2,7 +2,7 @@
 containerNames:
   - todoappender
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName

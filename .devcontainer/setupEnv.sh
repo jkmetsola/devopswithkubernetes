@@ -37,6 +37,7 @@ define_global_vars(){
   export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
   export PROJECT_FOLDER=${WORKSPACE_FOLDER}/project
   export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
+  export PROJECT_COMMON_FOLDER=${WORKSPACE_FOLDER}/project-common
   export BASE_TEMPLATES_FOLDER=${WORKSPACE_FOLDER}/base_templates
   export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
   export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh

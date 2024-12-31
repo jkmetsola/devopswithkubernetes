@@ -2,7 +2,7 @@
 containerNames:
   - dbbackupper
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName

@@ -56,6 +56,11 @@ clean_copied_symlinks(){
 }
 
 cleanup() {
+    if [ "$?" -eq 1 ]; then
+        echo "Resolve helm template script exited with code 1"
+        echo "Error log: $TEMP_ERROR_LOG"
+        exit 1
+    fi
     check_for_new_helm_errors
     rm -f \
     "${TEMP_DEP_VARS}" \

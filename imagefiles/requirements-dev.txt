@@ -8,7 +8,7 @@ certifi==2024.12.14
     # via
     #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
     #   requests
-charset-normalizer==3.4.0
+charset-normalizer==3.4.1
     # via
     #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
     #   requests
@@ -28,9 +28,9 @@ pyyaml==6.0.2
     # via yamllint
 requests==2.32.3
     # via -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
-ruff==0.8.3
+ruff==0.8.4
     # via -r /dev-env/devopswithkubernetes/imagefiles/requirements-dev.in
-urllib3==2.2.3
+urllib3==2.3.0
     # via
     #   -r /dev-env/devopswithkubernetes/imagefiles/./requirements-logserver.txt
     #   requests

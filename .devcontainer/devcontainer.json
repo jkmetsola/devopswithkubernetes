@@ -12,7 +12,6 @@
             "PACKAGES_DEVLINT_FILE": "imagefiles/packages-devlint.txt",
             "REQUIREMENTS_FILE": "imagefiles/requirements.txt",
             "REQUIREMENTS_TOOLS_FILE": "imagefiles/requirements-pip-tools.txt",
-            "REQUIREMENTS_DEV_FILE": "imagefiles/requirements-dev.txt",
             "REPOS_DEVENV_FILE": "imagefiles/repos-devenv.sh",
             "CONFIGURE_DEVUSER_FILE": "imagefiles/configure-devuser.sh",
             "DEVUSER": "devroot"

@@ -10,12 +10,13 @@ clusterPort: 1030
 appPort: 3030
 informationFile: information.txt
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName
         - appPort
         - containerNames
+  project-other:
     apps:
       pingpong:
         - serviceName

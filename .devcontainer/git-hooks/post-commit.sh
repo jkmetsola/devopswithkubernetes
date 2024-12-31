@@ -3,6 +3,12 @@
 set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
+LAUNCH_PROJECT_TOOL=$WORKSPACE_FOLDER/tools/launch_project.sh
+
+# shellcheck source=.env
+source "$WORKSPACE_FOLDER/.env"
+# shellcheck source=.devcontainer/setupEnv.sh
+source "${SETUP_ENV_PATH}" "false"
 
 output_information_and_sleep(){
     git log -1
@@ -25,8 +31,8 @@ execute_local_tests(){
     echo "Starting to execute local tests. Logs outputted to $temp_logs"
     {
         kubectl config use-context k3d-k3s-default
-        tools/launch_project.sh project
-        tools/launch_project.sh project-other
+        $LAUNCH_PROJECT_TOOL project
+        $LAUNCH_PROJECT_TOOL project-other
     } > "$temp_logs"
     echo "Tests succesful. Logs available: $temp_logs"
 }

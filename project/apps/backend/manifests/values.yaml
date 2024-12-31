@@ -7,7 +7,7 @@ clusterPort: 1015
 appPort: 3015
 dbTableName: todos
 depValues:
-  project-other:
+  project-common:
     databases:
       postgres:
         - serviceName
