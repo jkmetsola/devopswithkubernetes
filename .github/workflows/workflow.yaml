@@ -2,6 +2,8 @@
 on: # yamllint disable-line rule:truthy
   delete:
   push:
+    branches-ignore:
+      - main # disable deployments to main branch for now.
 
 jobs:
   build-container:
