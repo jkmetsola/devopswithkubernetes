@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/configure-env
 
-      - run: tools/gh-workflows/run_static_code_analysis.sh
+      - run: .devcontainer/git-hooks/pre-commit.sh
         if: matrix.job == 'static-code-check'
 
       - name: Delete branch namespace
