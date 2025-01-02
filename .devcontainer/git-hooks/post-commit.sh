@@ -42,6 +42,11 @@ if [[ -n "${DEBUG:-}" ]]; then
     export DEBUG
 fi
 
+if [ -d "$WORKSPACE_FOLDER/.git/rebase-merge" ] || [ -d "$WORKSPACE_FOLDER/.git/rebase-apply" ]; then
+    echo "Rebase in progress. Skipping post-commit actions."
+    exit 0
+fi
+
 output_information_and_sleep
 clean_workspace
 execute_local_tests
