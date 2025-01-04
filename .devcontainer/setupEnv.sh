@@ -26,30 +26,37 @@ configure_devcontainer_json() {
 }
 
 define_global_vars(){
-  export UPDATE_LINUX_PKG_SCRIPT=${WORKSPACE_FOLDER}/.devcontainer/init/updateLinuxPackageVersions.sh
-  export EXECUTE_WITH_USER=${WORKSPACE_FOLDER}/.devcontainer/init/executeWithUser.sh
-  export DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/devcontainer.json
+  ERROR_LOG="$(mktemp)"
+  GIT_BRANCH="${GITHUB_EVENT_REF:-"$(git rev-parse --abbrev-ref HEAD)"}"
+  PROJECT_ID="$(gcloud config list --format='value(core.project)')" || true
+  VERSION_BRANCH="$(echo "$GIT_BRANCH" | tr '/' '-')"
+  VERSION_TAG="$VERSION_BRANCH-$(git rev-parse HEAD)"
+  export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh
+  export APPLY_MANIFESTS_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/apply-manifests.sh
+  export APPLY_NAMESPACE_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/apply-namespace.sh
+  export BUILD_AND_APPLY_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/build-and-apply-app.sh
+  export BASE_TEMPLATES_DIR=${WORKSPACE_FOLDER}/base_templates/partial_templates
+  export BASE_TEMPLATES_FOLDER=${WORKSPACE_FOLDER}/base_templates
   export CHECK_LINEFEED=${WORKSPACE_FOLDER}/.devcontainer/shellTools/checkLineFeed.sh
-  export REPOS_DEVENV=${WORKSPACE_FOLDER}/${REPOS_DEVENV_FILE}
+  export CONFIGURE_DEVUSER=${WORKSPACE_FOLDER}/${CONFIGURE_DEVUSER_FILE}
+  export DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/devcontainer.json
+  export ERROR_LOG
+  export EXECUTE_WITH_USER=${WORKSPACE_FOLDER}/.devcontainer/init/executeWithUser.sh
+  export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
   export PACKAGES_DEVENV=${WORKSPACE_FOLDER}/${PACKAGES_DEVENV_FILE}
   export PACKAGES_DEVLINT=${WORKSPACE_FOLDER}/${PACKAGES_DEVLINT_FILE}
-  export CONFIGURE_DEVUSER=${WORKSPACE_FOLDER}/${CONFIGURE_DEVUSER_FILE}
-  export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
-  export PROJECT_FOLDER=${WORKSPACE_FOLDER}/project
-  export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
   export PROJECT_COMMON_FOLDER=${WORKSPACE_FOLDER}/project-common
-  export BASE_TEMPLATES_FOLDER=${WORKSPACE_FOLDER}/base_templates
-  export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
-  export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh
-  export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
-  PROJECT_ID="$(gcloud config list --format='value(core.project)')" || true
+  export PROJECT_FOLDER=${WORKSPACE_FOLDER}/project
   export PROJECT_ID
-  GIT_BRANCH="${GITHUB_EVENT_REF:-"$(git rev-parse --abbrev-ref HEAD)"}"
-  VERSION_BRANCH="$(echo "$GIT_BRANCH" | tr '/' '-')"
+  export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
+  export REPOS_DEVENV=${WORKSPACE_FOLDER}/${REPOS_DEVENV_FILE}
+  export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
+  export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
+  export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
+  export UPDATE_LINUX_PKG_SCRIPT=${WORKSPACE_FOLDER}/.devcontainer/init/updateLinuxPackageVersions.sh
   export VERSION_BRANCH
-  VERSION_TAG="$VERSION_BRANCH-$(git rev-parse HEAD)"
   export VERSION_TAG
-  export BASE_TEMPLATES_DIR=${WORKSPACE_FOLDER}/base_templates/partial_templates
+  export WAIT_FOR_POD_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/wait-for-pod.sh
 }
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"

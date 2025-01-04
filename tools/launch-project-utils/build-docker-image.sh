@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-APP=$1
+APP_DIR=$1
 CONTAINER=$2
 TAG=$3
 
@@ -10,10 +10,10 @@ TMP_DOCKER_BUILD_LOG="$(mktemp)"
 
 docker_build() {
     docker build \
-        -f "${APP}"/Dockerfile \
+        -f "${APP_DIR}"/Dockerfile \
         --target "${CONTAINER}" \
         -t "$TAG" \
-        "${APP}" \
+        "${APP_DIR}" \
         > "$TMP_DOCKER_BUILD_LOG" 2>&1
 }
 

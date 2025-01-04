@@ -6,11 +6,11 @@
           imagePullPolicy: {{.imagePullPolicy}}
           resources: &resource_limits
             limits:
-              cpu: "1"
-              memory: "512Mi"
-            requests:
               cpu: "100m"
               memory: "256Mi"
+            requests:
+              cpu: "15m"
+              memory: "128Mi"
           {{- template "container.command" $}}
         {{- end}}
 {{- end -}}
