@@ -13,7 +13,16 @@ add_loki(){
         --version 2.10.2 \
         --namespace loki-stack \
         --wait
-    kubectl port-forward --namespace loki-stack --address 0.0.0.0 service/loki-grafana 3000:80 &
+}
+
+add_prometheus(){
+    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    helm repo add stable https://charts.helm.sh/stable
+    kubectl create namespace prometheus
+    helm install prometheus --debug prometheus-community/kube-prometheus-stack \
+        --version 67.5.0 \
+        --namespace prometheus \
+        --wait
 }
 
 create_cluster() {
@@ -25,7 +34,11 @@ create_cluster() {
         --port 8081:80@loadbalancer \
         --api-port host.docker.internal:6550 \
         --wait
-    add_loki
+    add_loki &
+    add_prometheus &
+    wait
+    kubectl port-forward --namespace loki-stack --address 0.0.0.0 service/loki-grafana 3000:80 &
+    kubectl port-forward --namespace prometheus --address 0.0.0.0 service/prometheus-grafana 3001:80 &
     exit 0
 }
 

@@ -3,9 +3,6 @@
 set -euo pipefail
 
 APP_DIR=$1
-RESOLVE_HELM_TEMPLATE_TOOL=$2
-SYMLINK_TOOL=$3
-ERROR_LOG=$4
 
 APP="$(basename "$APP_DIR")"
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
@@ -23,7 +20,6 @@ build_images_for_app() {
         "$WORKSPACE_FOLDER"/tools/launch-project-utils/build-docker-image-for-container.sh \
             "$container" \
             "$APP_DIR" \
-            "$SYMLINK_TOOL" \
             "$ERROR_LOG"
     done
 }

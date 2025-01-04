@@ -24,6 +24,7 @@ TEMP_ERROR_LOG="$(mktemp --suffix .log)"
 TEMP_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
 FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
 TMP_PARTIAL_TEMPLATES_PREFIX=_tmp_
+SCRIPT_NAME="$(basename "$0")"
 
 get_deployment_specific_values_file(){
     cluster_name="$(kubectl config current-context)"
@@ -57,8 +58,8 @@ clean_copied_symlinks(){
 
 cleanup() {
     if [ "$?" -eq 1 ]; then
-        echo "Resolve helm template script exited with code 1"
-        echo "Error log: $TEMP_ERROR_LOG"
+        echo "'$SCRIPT_NAME $APP_DIR' exited with code 1" >&2
+        check_for_new_helm_errors
         exit 1
     fi
     check_for_new_helm_errors

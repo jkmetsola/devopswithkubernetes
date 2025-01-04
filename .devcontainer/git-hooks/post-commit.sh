@@ -3,7 +3,6 @@
 set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
-LAUNCH_PROJECT_TOOL=$WORKSPACE_FOLDER/tools/launch_project.sh
 
 # shellcheck source=.env
 source "$WORKSPACE_FOLDER/.env"
@@ -25,16 +24,19 @@ clean_workspace(){
     cp "$temp_env" "$WORKSPACE_FOLDER"/.env
 }
 
+execute_test(){
+    echo "Executing '$1'. Logs outputted to $2"
+    $1 > "$2"
+    echo "Test '$1' succesful. Logs available: $2"
+}
+
 execute_local_tests(){
-    temp_logs="$(mktemp)"
-    echo ""
-    echo "Starting to execute local tests. Logs outputted to $temp_logs"
-    {
-        kubectl config use-context k3d-k3s-default
-        $LAUNCH_PROJECT_TOOL project
-        $LAUNCH_PROJECT_TOOL project-other
-    } > "$temp_logs"
-    echo "Tests succesful. Logs available: $temp_logs"
+    kubectl config use-context k3d-k3s-default
+    execute_test "$LAUNCH_PROJECT project" "$(mktemp)" &
+    execute_test "$LAUNCH_PROJECT project-other" "$(mktemp)" &
+    wait
+    echo "Tests succesful."
+
 }
 
 if [[ -n "${DEBUG:-}" ]]; then

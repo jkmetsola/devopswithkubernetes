@@ -2,7 +2,6 @@
     "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [],
     "permanent": [
         ".devcontainer/grep_tool/logger.py",
-        ".devcontainer/setupEnv.sh",
         ".gitignore",
         ".vscode/launch.json",
         ".vscode/settings.json",
@@ -11,7 +10,8 @@
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
         "tools/launch_cluster.sh",
-        ".devcontainer/git-hooks/pre-commit.sh"
+        ".devcontainer/git-hooks/pre-commit.sh",
+        "tools/gh-workflows/generate_dot_env.sh"
     ],
     "patterns": [
         "^.*[.]symlink$",

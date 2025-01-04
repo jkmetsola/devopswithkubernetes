@@ -2,15 +2,19 @@
 
 set -euo pipefail
 
-APP_DIR=$1
-RESOLVE_HELM_TEMPLATE_TOOL=$2
-
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
+
+APP_DIR=$1
+NAMESPACE=$2
+RESOLVE_HELM_TEMPLATE_TOOL=${3:-${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh}
+
 
 apply_manifests() {
     resolved_yaml="$("${RESOLVE_HELM_TEMPLATE_TOOL}" "${APP_DIR}")"
-    kubectl apply -f "${resolved_yaml}"
-    "$WORKSPACE_FOLDER"/tools/launch-project-utils/apply-secrets.sh "${APP_DIR}"
+    kubectl apply --namespace "$NAMESPACE" -f "${resolved_yaml}"
+    "$WORKSPACE_FOLDER"/tools/launch-project-utils/apply-secrets.sh \
+        "${APP_DIR}" \
+        "${NAMESPACE}"
 }
 
 if [[ -n "${DEBUG:-}" ]]; then
