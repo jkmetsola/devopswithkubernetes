@@ -61,7 +61,7 @@ launch_projects() {
         deploy_apps "${temp_project_other_dir}"/apps
     fi
     kubectl cluster-info
-    kubectl get svc,ing
+    kubectl get --namespace "$NAMESPACE" svc,ing
 }
 
 main() {
