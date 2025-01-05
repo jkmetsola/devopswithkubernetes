@@ -19,8 +19,7 @@ build_images_for_app() {
     for container in $(get_container_names); do
         "$WORKSPACE_FOLDER"/tools/launch-project-utils/build-docker-image-for-container.sh \
             "$container" \
-            "$APP_DIR" \
-            "$ERROR_LOG"
+            "$APP_DIR"
     done
 }
 
