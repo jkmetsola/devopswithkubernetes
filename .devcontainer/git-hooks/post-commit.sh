@@ -27,16 +27,18 @@ clean_workspace(){
 execute_test(){
     echo "Executing '$1'. Logs outputted to $2"
     $1 > "$2"
-    echo "Test '$1' succesful. Logs available: $2"
+    echo -e "\e[32mTest '$1' successful. Logs available: $2\e[0m"
 }
 
 execute_local_tests(){
     kubectl config use-context k3d-k3s-default
     execute_test "$LAUNCH_PROJECT project" "$(mktemp)" &
+    pid_project=$!
     execute_test "$LAUNCH_PROJECT project-other" "$(mktemp)" &
-    wait
-    echo "Tests succesful."
-
+    pid_project_other=$!
+    wait $pid_project
+    wait $pid_project_other
+    echo -e "\e[32mTests succesful\e[0m"
 }
 
 if [[ -n "${DEBUG:-}" ]]; then
