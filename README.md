@@ -118,3 +118,15 @@ Example command where logserver automatic scaling is tested.
 This can be used to test scenarios where lot of requests are coming that needs
 to be served. This tool can help to determine the resources for the pod so that
 horizontal pod autoscaling is triggered.
+
+# Observing logs via GKE
+
+For example, when creating a new todo for the project, following log print can be
+observed from https://console.cloud.google.com/logs
+
+    ERROR 2025-01-05T20:48:22.571423524Z [resource.labels.containerName: backend] 35.191.0.107 - - [05/Jan/2025 20:48:22] "POST /backend HTTP/1.1" 200 -
+
+![Google Cloud Logs](documentation/attachments/Google_cloud_logs.png)
+
+(Reason why it is interpreted as error is that python logger is configured to output
+logs to stderr stream.)

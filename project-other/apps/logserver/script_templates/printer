@@ -42,4 +42,8 @@ class RandomStringPrinter:
 
 
 if __name__ == "__main__":
-    RandomStringPrinter.run(logfile="{{.logFileMountPath}}/{{.logFileName}}")
+    logfile = Path("{{.logFileMountPath}}") / "{{.logFileName}}"
+    if not Path(logfile).exists():
+        with Path(logfile).open("w") as file:
+            file.write("\n")
+    RandomStringPrinter.run(logfile)

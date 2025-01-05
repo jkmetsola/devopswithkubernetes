@@ -28,7 +28,7 @@ check_whitespace_error() {
 }
 
 check_linefeed_eof() {
-    git diff-index --cached --name-only --diff-filter=d HEAD \
+    git diff-index --cached --name-only --diff-filter=d HEAD -- ':!*.png' \
         | xargs --no-run-if-empty -I {} find {} -type f \
         | xargs -L 1 --no-run-if-empty "${CHECK_LINEFEED}"
 }

@@ -27,6 +27,7 @@ class LogRequestHandler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    with Path(LOG_FILE).open("w") as file:
-        file.write("\n")
+    if not Path(LOG_FILE).exists():
+        with Path(LOG_FILE).open("w") as file:
+            file.write("\n")
     TCPServerLauncher.run(int("{{.appPort}}"), LogRequestHandler)
