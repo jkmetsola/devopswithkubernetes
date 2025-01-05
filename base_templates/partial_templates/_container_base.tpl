@@ -4,13 +4,7 @@
         - name: {{index .containerNames 0}}
           image: "{{.imageRegistry}}/{{index .containerNames 0}}:{{.versionTag}}"
           imagePullPolicy: {{.imagePullPolicy}}
-          resources: &resource_limits
-            limits:
-              cpu: "100m"
-              memory: "256Mi"
-            requests:
-              cpu: "15m"
-              memory: "128Mi"
+          {{- template "resources.constraints" $}}
           {{- template "container.command" $}}
         {{- end}}
 {{- end -}}

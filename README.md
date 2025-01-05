@@ -106,3 +106,15 @@ Storage used with databases is persistent (not Ephemeral), but let's assume it i
         - Costs are significantly higher if there is not existing Kubernetes
         cluster available (that is needed anyway.)
         - Real costs (including maintenance) can be difficult to estimate
+
+# Horizontal Pod Autoscaling (HPA)
+
+Example command where logserver automatic scaling is tested.
+
+    tools/testing-scripts/test-sending-many-requests.sh \
+        logserver \
+        project-other-dev-jmetsola
+
+This can be used to test scenarios where lot of requests are coming that needs
+to be served. This tool can help to determine the resources for the pod so that
+horizontal pod autoscaling is triggered.
