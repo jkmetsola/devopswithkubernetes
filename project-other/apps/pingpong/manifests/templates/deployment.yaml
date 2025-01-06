@@ -2,6 +2,7 @@
 {{- with .Values}}
 {{- template "deployment.spec.base" $}}
     spec:
+      {{- template "init.container.waitdb" $}}
       containers:
           {{- template "container.base" $}}
           envFrom:
