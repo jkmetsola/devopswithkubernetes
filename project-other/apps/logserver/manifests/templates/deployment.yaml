@@ -1,15 +1,15 @@
 ---
 {{- with .Values}}
-{{- template "deployment.spec.base" $}}
+{{- include "deployment.spec.base" $}}
     spec:
-      {{- template "init.container.waitdb" $}}
+      {{- include "init.container.waitdb" $}}
       containers:
-          {{- template "container.base" $}}
+          {{- include "container.base" $}}
           ports:
             - containerPort: {{.appPort}}
-          {{- template "probes.get" $}}
-          {{- template "security.context" $}}
-          {{- template "volumemounts.base" $}}
+          {{- include "probes.get" $}}
+          {{- include "security.context" $}}
+          {{- include "volumemounts.base" $}}
             - &logfile_mount
               name: {{.logFileVolumeName}}
               mountPath: {{.logFileMountPath}}
@@ -35,10 +35,10 @@
               command:
                 - cat
                 - "{{.logFileMountPath}}/{{.logFileName}}"
-          {{- template "security.context" $}}
-          {{- template "volumemounts.base" $}}
+          {{- include "security.context" $}}
+          {{- include "volumemounts.base" $}}
             - *logfile_mount
-      {{- template "volumes.base" $}}
+      {{- include "volumes.base" $}}
         - name: {{.logFileVolumeName}}
           emptyDir: {}
       terminationGracePeriodSeconds: 5

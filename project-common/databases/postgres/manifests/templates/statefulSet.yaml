@@ -16,7 +16,7 @@ spec:
         app: {{index .containerNames 0}}
     spec:
       containers:
-          {{- template "container.base" $}}
+          {{- include "container.base" $}}
           envFrom:
             - secretRef:
                 name: {{index .containerNames 0}}

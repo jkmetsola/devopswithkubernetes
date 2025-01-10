@@ -3,52 +3,14 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-from traceback import format_exception
-from typing import TYPE_CHECKING, Generator  # noqa: UP035
-
-if TYPE_CHECKING:
-    import types
-
 import argparse
 from argparse import Namespace
+from pathlib import Path
+from typing import Generator  # noqa: UP035
 
 import yaml
 
 VALUES_YAML_RELATIVE_PATH = "manifests/values.yaml"
-
-
-def exception_hook(
-    exc_type: type[BaseException],
-    exc_value: BaseException,
-    exc_traceback: types.TracebackType,
-) -> None:
-    """Handle uncaught exceptions and print them to stderr."""
-    if issubclass(exc_type, KeyboardInterrupt):
-        sys.__excepthook__(exc_type, exc_value, exc_traceback)
-        return
-    tb = exc_traceback
-    while tb.tb_next:
-        tb = tb.tb_next
-    frame = tb.tb_frame
-    for var, val in frame.f_locals.items():
-        if var == "self":
-            for attr in dir(val):
-                if not attr.startswith("__"):
-                    try:
-                        value = getattr(val, attr)
-                        sys.stderr.write(f"{attr} = {value}\n")
-                    except Exception:  # noqa: BLE001, S110
-                        pass
-        else:
-            sys.stderr.write(f"{var} = {val}\n")
-    traceback_txt = "".join(format_exception(exc_type, exc_value, exc_traceback))
-    sys.stderr.write(traceback_txt)
-    sys.exit(1)
-
-
-sys.excepthook = exception_hook
 
 
 class DependencyResolver:  # noqa: D101

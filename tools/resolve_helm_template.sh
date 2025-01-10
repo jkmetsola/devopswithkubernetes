@@ -22,6 +22,7 @@ TEMP_DEP_VARS="$MANIFESTS_DIR"/dependency-values.yaml
 FULL_VALUES_YAML="$(mktemp --suffix .yaml)"
 TEMP_ERROR_LOG="$(mktemp --suffix .log)"
 TEMP_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
+TEMP_RESOLVED_PRODUCTION_YAML="$(mktemp --suffix .yaml)"
 FULL_CONFIGMAP_TMP="$(mktemp --suffix .yaml)"
 TMP_PARTIAL_TEMPLATES_PREFIX=_tmp_
 SCRIPT_NAME="$(basename "$0")"
@@ -38,6 +39,9 @@ get_deployment_specific_values_file(){
 check_for_new_helm_errors() {
     if grep -v "found symbolic link in path:" "${TEMP_ERROR_LOG}" >&2; then
         echo "New errors seen in helm template output. Please check." >&2
+        resolve_template true || true
+        echo "Full yaml: $TEMP_PRODUCTION_YAML" >&2
+        echo "Full yaml exploded: $TEMP_RESOLVED_PRODUCTION_YAML" >&2
         exit 1
     fi
 }
@@ -137,16 +141,16 @@ copy_partial_templates(){
 }
 
 resolve_template() {
-    temp_resolved_production_yaml="$(mktemp --suffix .yaml)"
     trap 'cleanup' EXIT
     helm template --generate-name \
+        ${1:+--debug }\
         --set versionTag="$VERSION_TAG" \
         -f "$(get_deployment_specific_values_file)" \
         -f "${TEMP_DEP_VARS}" \
         "${MANIFESTS_DIR}" \
         > "${TEMP_PRODUCTION_YAML}" 2> "${TEMP_ERROR_LOG}"
-    yq eval -e 'explode(.)' "${TEMP_PRODUCTION_YAML}" > "${temp_resolved_production_yaml}"
-    echo "${temp_resolved_production_yaml}"
+    yq eval -e 'explode(.)' "${TEMP_PRODUCTION_YAML}" > "${TEMP_RESOLVED_PRODUCTION_YAML}"
+    echo "${TEMP_RESOLVED_PRODUCTION_YAML}"
 }
 
 resolve_dependency_values() {

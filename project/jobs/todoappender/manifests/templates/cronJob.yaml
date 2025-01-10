@@ -14,6 +14,7 @@ spec:
             job: {{index .containerNames 0}}
         spec:
           restartPolicy: OnFailure
+          {{- include "init.container.waitdb" $ | indent 4}}
           containers:
               {{- include "container.base" $ | indent 4}}
               envFrom:
@@ -21,17 +22,5 @@ spec:
                     name: {{index .databases.postgres.containerNames 0}}
               {{- include "security.context" $ | indent 4}}
               {{- include "volumemounts.base" $ | indent 4}}
-              {{- include "volumemounts.secret" $ | indent 4}}
-                - name: gsc-volume
-                  mountPath: /mnt/gcs
-                  subPath: gcs
-                  readOnly: false
-                - name: gsc-volume
-                  mountPath: /mnt/gcs-tmp
-                  subPath: gcs-tmp
-                  readOnly: false
           {{- include "volumes.base" $ | indent 4}}
-          {{- include "volumes.secret" $ | indent 4}}
-            - name: gsc-volume
-              emptyDir: {}
 {{- end}}
