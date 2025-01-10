@@ -14,6 +14,6 @@ spec:
     - http:
         # Path for this application also accessible via default backend.
         paths:
-          {{- template "ingress.path" $.Values}}
-          {{- template "ingress.path" $.Values.apps.pingpong}}
+          {{- include "ingress.path" $.Values}}
+          {{- include "ingress.path" $.Values.apps.pingpong}}
 {{- end}}

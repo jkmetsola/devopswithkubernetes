@@ -34,14 +34,15 @@ define_global_vars(){
   export AGE_KEY_TOOL=${WORKSPACE_FOLDER}/tools/age_key_tool.sh
   export APPLY_MANIFESTS_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/apply-manifests.sh
   export APPLY_NAMESPACE_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/apply-namespace.sh
-  export BUILD_AND_APPLY_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/build-and-apply-app.sh
   export BASE_TEMPLATES_DIR=${WORKSPACE_FOLDER}/base_templates/partial_templates
   export BASE_TEMPLATES_FOLDER=${WORKSPACE_FOLDER}/base_templates
+  export BUILD_AND_APPLY_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/build-and-apply-app.sh
   export CHECK_LINEFEED=${WORKSPACE_FOLDER}/.devcontainer/shellTools/checkLineFeed.sh
   export CONFIGURE_DEVUSER=${WORKSPACE_FOLDER}/${CONFIGURE_DEVUSER_FILE}
   export DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/devcontainer.json
   export ERROR_LOG
   export EXECUTE_WITH_USER=${WORKSPACE_FOLDER}/.devcontainer/init/executeWithUser.sh
+  export GET_BASENAMES_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/get-basenames.sh
   export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
   export PACKAGES_DEVENV=${WORKSPACE_FOLDER}/${PACKAGES_DEVENV_FILE}
   export PACKAGES_DEVLINT=${WORKSPACE_FOLDER}/${PACKAGES_DEVLINT_FILE}
@@ -51,13 +52,19 @@ define_global_vars(){
   export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
   export REPOS_DEVENV=${WORKSPACE_FOLDER}/${REPOS_DEVENV_FILE}
   export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
-  export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
   export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
   export UPDATE_LINUX_PKG_SCRIPT=${WORKSPACE_FOLDER}/.devcontainer/init/updateLinuxPackageVersions.sh
   export VERSION_BRANCH
   export VERSION_TAG
   export WAIT_FOR_POD_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/wait-for-pod.sh
 }
+
+create_temp_repodir() {
+  temp_repodir="$(mktemp --directory)/$(basename "$WORKSPACE_FOLDER")"
+  cp -r "$WORKSPACE_FOLDER" "$temp_repodir"
+  echo "$temp_repodir"
+}
+
 export CONFIGURE_DEVCONTAINER_JSON=${WORKSPACE_FOLDER}/.devcontainer/configure_devcontainer_json.py
 configure_devcontainer_json "$1"
 # shellcheck disable=SC1090

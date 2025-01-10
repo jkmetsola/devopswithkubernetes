@@ -14,7 +14,7 @@ depValues:
         - containerNames
 depValuesNoRoute:
   project:
-    initjobs:
+    jobs:
       picturefetcher:
         - dbItemId
         - dbTableName

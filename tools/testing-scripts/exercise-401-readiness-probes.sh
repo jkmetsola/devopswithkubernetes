@@ -8,7 +8,7 @@ source "$WORKSPACE_FOLDER/.env"
 # shellcheck source=.devcontainer/setupEnv.sh
 source "${SETUP_ENV_PATH}" "false"
 
-NAMESPACE=project-other-dev-jmetsola
+NAMESPACE="$("$APPLY_NAMESPACE_TOOL" "project-other" "$VERSION_BRANCH" "$ERROR_LOG")"
 
 get_pod_status_and_sleep(){
     kubectl get po --namespace "$NAMESPACE"

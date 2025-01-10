@@ -26,7 +26,7 @@ main() {
     app="$(basename "$APP_DIR")"
     project="$(basename "$(realpath "$APP_DIR/../..")")"
     NAMESPACE="$($APPLY_NAMESPACE_TOOL "$project" "$VERSION_BRANCH" "$ERROR_LOG")"
-    kubectl delete --wait --namespace "$NAMESPACE" --now=true deployment "$app"
+    kubectl delete --ignore-not-found --wait --namespace "$NAMESPACE" --now=true deployment "$app"
     $BUILD_AND_APPLY_TOOL "$APP_DIR" "$NAMESPACE"
     $WAIT_FOR_POD_TOOL "$app" "$NAMESPACE"
 }
