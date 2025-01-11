@@ -130,3 +130,15 @@ observed from https://console.cloud.google.com/logs
 
 (Reason why it is interpreted as error is that python logger is configured to output
 logs to stderr stream.)
+
+# Observing queries via prometheus
+
+Testing to write following query to observe amount of StatefulSet pods.
+
+    sum(kube_pod_info{namespace="prometheus",created_by_kind="StatefulSet"})
+
+![Prometheus query](documentation/attachments/prometheus_query.png)
+
+For some reason amount of statefulsets is not the same as expected in the exercise
+instructions. However, version of prometheus not specified so most likely there
+has been some design changes.
