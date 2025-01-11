@@ -17,7 +17,7 @@ echo_errors_on_exit1() {
         echo "Script '$SCRIPT_NAME $SCRIPT_ARG' exited with code 1." >&2
         echo "Error logs available $ERROR_LOG" >&2
         echo "workspace folder: $WORKSPACE_FOLDER" >&2
-        for pid in "${APP_TYPE_PIDS[@]}"; do
+        for pid in "${EXECUTION_PIDS[@]}"; do
             kill "$pid" 2>/dev/null || true
         done
         exit 1
