@@ -21,7 +21,7 @@ deploy_cronjobs() {
         (
             $BUILD_AND_APPLY_TOOL "$JOBS_DIR/$job" "$NAMESPACE"
             kubectl create job --namespace "$NAMESPACE" --from=cronjob/"${job}" "${job}"-run
-            kubectl wait --namespace "$NAMESPACE" --all --for=condition=Complete --timeout=60s job -l job="${job}"
+            kubectl wait --namespace "$NAMESPACE" --all --for=condition=Complete --timeout=90s job -l job="${job}"
             kubectl logs --namespace "$NAMESPACE" --all-containers -l job="${job}"
         ) > "$temp_job_log" &
         DEPLOYMENT_PIDS+=($!)
