@@ -39,6 +39,10 @@ create_cluster() {
     wait
     kubectl port-forward --namespace loki-stack --address 0.0.0.0 service/loki-grafana 3000:80 &
     kubectl port-forward --namespace prometheus --address 0.0.0.0 service/prometheus-grafana 3001:80 &
+    kubectl port-forward \
+        --namespace prometheus \
+        --address 0.0.0.0 \
+        service/prometheus-kube-prometheus-prometheus 9090:9090 &
     exit 0
 }
 
