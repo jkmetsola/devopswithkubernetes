@@ -54,13 +54,14 @@ ARG REPOS_DEVENV_FILE
 ARG PACKAGES_DEVENV_FILE
 ARG DEVUSER
 ARG CONFIGURE_DEVUSER_FILE
+ARG ARGO_DOWNLOAD_URL
 
 RUN ./${REPOS_DEVENV_FILE} && \
     apt-get update && \
     xargs -a "$PACKAGES_DEVENV_FILE" apt-get install --no-install-recommends -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
-    imagefiles/no-apt-packages-devenv.sh && \
+    imagefiles/no-apt-packages-devenv.sh "$ARGO_DOWNLOAD_URL" && \
     ./${CONFIGURE_DEVUSER_FILE} "$DEVUSER" "$HOST_UID" "$HOST_GID" "$HOST_DOCKER_GID"
 
 COPY --from=sops-bin /usr/local/bin/sops /usr/local/bin/sops

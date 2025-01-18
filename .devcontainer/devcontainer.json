@@ -14,6 +14,7 @@
             "REQUIREMENTS_TOOLS_FILE": "imagefiles/requirements-pip-tools.txt",
             "REPOS_DEVENV_FILE": "imagefiles/repos-devenv.sh",
             "CONFIGURE_DEVUSER_FILE": "imagefiles/configure-devuser.sh",
+            "ARGO_DOWNLOAD_URL": "https://github.com/argoproj/argo-rollouts/releases/download/v1.7.2",
             "DEVUSER": "devroot"
         },
         "options": [

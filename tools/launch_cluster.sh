@@ -4,25 +4,18 @@ set -euo pipefail
 
 WORKSPACE_FOLDER="$(git rev-parse --show-toplevel)"
 
-add_loki(){
-    helm repo add grafana https://grafana.github.io/helm-charts
-    helm repo update
-    kubectl create namespace loki-stack
-    helm install loki --debug grafana/loki-stack \
-        --values "$WORKSPACE_FOLDER"/cluster-configuration/helm/grafana-loki-stack/values.yaml \
-        --version 2.10.2 \
-        --namespace loki-stack \
-        --wait
-}
+# shellcheck source=.env
+source "$WORKSPACE_FOLDER/.env"
+# shellcheck source=.devcontainer/setupEnv.sh
+source "${SETUP_ENV_PATH}" "false"
 
-add_prometheus(){
-    helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-    helm repo add stable https://charts.helm.sh/stable
-    kubectl create namespace prometheus
-    helm install prometheus --debug prometheus-community/kube-prometheus-stack \
-        --version 67.5.0 \
-        --namespace prometheus \
-        --wait
+install_plugins() {
+    commands=(
+        "$WORKSPACE_FOLDER/tools/launch-cluster-utils/add-argo-rollouts.sh"
+        "$WORKSPACE_FOLDER/tools/launch-cluster-utils/add-loki.sh"
+        "$WORKSPACE_FOLDER/tools/launch-cluster-utils/add-prometheus.sh"
+    )
+    STDERR_TO_FILE=true $START_AND_WAIT_SUBPROCESSES "${commands[@]}"
 }
 
 create_cluster() {
@@ -34,16 +27,17 @@ create_cluster() {
         --port 8081:80@loadbalancer \
         --api-port host.docker.internal:6550 \
         --wait
-    add_loki &
-    add_prometheus &
-    wait
+    install_plugins
     kubectl port-forward --namespace loki-stack --address 0.0.0.0 service/loki-grafana 3000:80 &
     kubectl port-forward --namespace prometheus --address 0.0.0.0 service/prometheus-grafana 3001:80 &
     kubectl port-forward \
         --namespace prometheus \
         --address 0.0.0.0 \
         service/prometheus-kube-prometheus-prometheus 9090:9090 &
-    exit 0
 }
 
+if [[ -n "${DEBUG:-}" ]]; then
+    set -x
+    export DEBUG
+fi
 create_cluster

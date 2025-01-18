@@ -1,24 +1,23 @@
 {
     "e24fc49329cd1fa9f2311832ea273e482f3fa6dc": [],
     "permanent": [
+        ".devcontainer/git-hooks/pre-commit.sh",
+        ".devcontainer/git-hooks/whitelist.json",
         ".devcontainer/grep_tool/logger.py",
         ".gitignore",
-        ".vscode/launch.json",
         ".vscode/settings.json",
         ".yamllint",
         "base_script_templates/dbhandler.py",
         "imagefiles/requirements-dbhandler.txt",
         "imagefiles/requirements-logserver.txt",
-        "tools/launch_cluster.sh",
-        ".devcontainer/git-hooks/pre-commit.sh",
         "tools/gh-workflows/generate_dot_env.sh"
     ],
     "patterns": [
         "^.*[.]symlink$",
         "^.*/__init__.py$",
+        "^.*/.*/Dockerfile$",
         "^.*/.env$",
         "^.*/[0-9]{2}[.]order$",
-        "^.*/.*/Dockerfile$",
         "^.*/manifests/.*",
         "^.*/script_templates/.*",
         "^.*/templates/.*yaml$",
