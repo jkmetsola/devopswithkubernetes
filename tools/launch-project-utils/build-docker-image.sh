@@ -10,7 +10,6 @@ TMP_DOCKER_BUILD_LOG="$(mktemp)"
 
 docker_build() {
     docker build \
-        -f "${APP_DIR}"/Dockerfile \
         --target "${CONTAINER}" \
         -t "$TAG" \
         "${APP_DIR}" \

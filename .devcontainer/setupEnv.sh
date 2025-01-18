@@ -52,6 +52,7 @@ define_global_vars(){
   export PROJECT_OTHER_FOLDER=${WORKSPACE_FOLDER}/project-other
   export REPOS_DEVENV=${WORKSPACE_FOLDER}/${REPOS_DEVENV_FILE}
   export RESOLVE_HELM_TEMPLATE_TOOL=${WORKSPACE_FOLDER}/tools/resolve_helm_template.sh
+  export START_AND_WAIT_SUBPROCESSES=${WORKSPACE_FOLDER}/tools/launch-utils/start-and-wait-subprocesses.sh
   export SYMLINK_TOOL=${WORKSPACE_FOLDER}/tools/copy_symlinks_tool.sh
   export UPDATE_LINUX_PKG_SCRIPT=${WORKSPACE_FOLDER}/.devcontainer/init/updateLinuxPackageVersions.sh
   export VERSION_BRANCH

@@ -13,38 +13,28 @@ DEPLOY_APPS_TOOL=$WORKSPACE_FOLDER/tools/launch-project-utils/deploy-apps.sh
 DEPLOY_JOBS_TOOL=$WORKSPACE_FOLDER/tools/launch-project-utils/deploy-cronjobs.sh
 
 echo_errors_on_exit1() {
-    if [ "$?" -eq 1 ]; then
-        echo "Script '$SCRIPT_NAME $SCRIPT_ARG' exited with code 1." >&2
+    if [ "$?" -ne 0 ]; then
+        echo "Script '$SCRIPT_NAME $SCRIPT_ARG' exited with error." >&2
         echo "Error logs available $ERROR_LOG" >&2
         echo "workspace folder: $WORKSPACE_FOLDER" >&2
-        for pid in "${EXECUTION_PIDS[@]}"; do
-            kill "$pid" 2>/dev/null || true
-        done
         exit 1
     fi
 }
 
 launch_projects() {
-    EXECUTION_PIDS=()
     if [[ "${1:-}" == "$(basename "${PROJECT_FOLDER}")" ]]; then
         commands=(
-            "$DEPLOY_APPS_TOOL ${PROJECT_COMMON_FOLDER}/databases"
-            "$DEPLOY_JOBS_TOOL ${PROJECT_FOLDER}/jobs"
-            "$DEPLOY_APPS_TOOL ${PROJECT_FOLDER}/apps"
+            "$DEPLOY_APPS_TOOL ${PROJECT_COMMON_FOLDER}/databases $NAMESPACE"
+            "$DEPLOY_JOBS_TOOL ${PROJECT_FOLDER}/jobs $NAMESPACE"
+            "$DEPLOY_APPS_TOOL ${PROJECT_FOLDER}/apps $NAMESPACE"
         )
     elif [[ "${1:-}" == "$(basename "${PROJECT_OTHER_FOLDER}")" ]]; then
         commands=(
-            "$DEPLOY_APPS_TOOL ${PROJECT_COMMON_FOLDER}/databases"
-            "$DEPLOY_APPS_TOOL ${PROJECT_OTHER_FOLDER}/apps"
+            "$DEPLOY_APPS_TOOL ${PROJECT_COMMON_FOLDER}/databases $NAMESPACE"
+            "$DEPLOY_APPS_TOOL ${PROJECT_OTHER_FOLDER}/apps $NAMESPACE"
         )
     fi
-    for cmd in "${commands[@]}"; do
-        $cmd "$NAMESPACE" &
-        EXECUTION_PIDS+=($!)
-    done
-    for execution_pid in "${EXECUTION_PIDS[@]}"; do
-        wait "$execution_pid"
-    done
+    $START_AND_WAIT_SUBPROCESSES "${commands[@]}"
     kubectl cluster-info
     kubectl get --namespace "$NAMESPACE" svc,ing
 }

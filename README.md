@@ -2,7 +2,8 @@ README.md
 
 # Devops with Kubernetes project
 
-- Whitelisted files when searching for similarity patterns: .devcontainer/git-hooks/whitelist.json
+- Whitelisted files when searching for similarity patterns: [whitelist.json](.devcontainer/git-hooks/whitelist.json)
+- Information about tools [TOOLS_INFO.md](documentation/TOOLS_INFO.md)
 
 # DBaaS vs DIY
 
