@@ -20,10 +20,6 @@ deploy_cronjobs() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     deploy_cronjobs
 }
 

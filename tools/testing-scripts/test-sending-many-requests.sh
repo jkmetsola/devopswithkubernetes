@@ -9,9 +9,12 @@ REQUESTS_LOG="$(mktemp)"
 URL="http://host.docker.internal:8081/$APP_NAME"
 HPA_NAME="$APP_NAME-hpa"
 
+MIN_REPLICAS="$(\
+    kubectl --namespace "$NAMESPACE" get hpa frontend-hpa -o jsonpath="{.spec.minReplicas}"\
+)"
 
 check_scale_up(){
-  if [ "$current_replicas" -gt 1 ]; then
+  if [ "$current_replicas" -gt "$MIN_REPLICAS" ]; then
       echo -e "\e[32mScale up success!\e[0m"
       return 0
   fi
@@ -19,7 +22,7 @@ check_scale_up(){
 }
 
 check_scale_down(){
-  if [ "$current_replicas" -eq 1 ]; then
+  if [ "$current_replicas" -eq "$MIN_REPLICAS" ]; then
       echo -e "\e[32mScale down success!\e[0m"
       return 0
   fi

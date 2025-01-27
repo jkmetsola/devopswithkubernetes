@@ -166,10 +166,6 @@ full_values_yaml() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
 
     resolve_dependency_values
     if [[ -n "${SHOW_FULL_VALUES:-}" ]]; then

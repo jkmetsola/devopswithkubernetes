@@ -36,8 +36,4 @@ create_cluster() {
         service/prometheus-kube-prometheus-prometheus 9090:9090 &
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
 create_cluster

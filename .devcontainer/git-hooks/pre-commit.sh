@@ -53,6 +53,7 @@ lint_with_kubelint(){
             "dbbackupper batch/v1, Kind=CronJob.*check: privileged-container"
             "dbbackupper batch/v1, Kind=CronJob.*check: privilege-escalation-container"
             "dbbackupper batch/v1, Kind=CronJob.*check: run-as-non-root"
+            "frontend-svc /v1, Kind=Service.*check: dangling-service"
             "Error: found.*lint errors"
         )
         for pattern in "${exclusion_patterns[@]}"; do

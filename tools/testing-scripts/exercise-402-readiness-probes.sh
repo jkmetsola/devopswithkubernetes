@@ -15,7 +15,7 @@ launch_backend_and_print_status() {
     echo "Launching app, logs available $TEMP_LOGS"
     (
         cd "$TEMP_REPODIR"
-        "$WORKSPACE_FOLDER"/tools/launch_single_app.sh project/apps/backend
+        $LAUNCH_SINGLE_APP project/apps/backend
     ) >> "$TEMP_LOGS" || true
     kubectl get po --namespace "$NAMESPACE"
 }
@@ -44,6 +44,8 @@ databases:
 main() {
     launch_backend_and_print_status
     knife_wrong_db_url
+    launch_backend_and_print_status
+    TEMP_REPODIR="$(create_temp_repodir)"
     launch_backend_and_print_status
 }
 

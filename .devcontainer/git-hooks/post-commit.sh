@@ -24,38 +24,31 @@ clean_workspace(){
     cp "$temp_env" "$WORKSPACE_FOLDER"/.env
 }
 
-execute_test(){
-    exec_command=$1
-    echo "Executing '$exec_command'. Logs outputted to $2"
-    temp_repodir="$(create_temp_repodir)"
-    (cd "$temp_repodir" && $exec_command) > "$2"
-    echo -e "\e[32mTest '$1' successful. Logs available: $2\e[0m"
-}
-
-execute_local_tests(){
-    kubectl config use-context k3d-k3s-default
-    project_names=("project" "project-other")
-    pids=()
-    for project_name in "${project_names[@]}"; do
-        execute_test "$LAUNCH_PROJECT $project_name" "$(mktemp)" &
-        pids+=($!)
-    done
-    for pid in "${pids[@]}"; do
-        wait "$pid"
-    done
-    echo -e "\e[32mTests succesful\e[0m"
-}
-
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
 if [ -d "$WORKSPACE_FOLDER/.git/rebase-merge" ] || [ -d "$WORKSPACE_FOLDER/.git/rebase-apply" ]; then
     echo "Rebase in progress. Skipping post-commit actions."
     exit 0
 fi
 
-output_information_and_sleep
+if [[ -z "${SKIP_MSG:-}" ]]; then
+    output_information_and_sleep
+fi
+
+NAMESPACE="$("$APPLY_NAMESPACE_TOOL" "project" "$VERSION_BRANCH" "$ERROR_LOG")"
+
 clean_workspace
-execute_local_tests
+
+kubectl config use-context k3d-k3s-default
+
+$START_AND_WAIT_SUBPROCESSES \
+    "cd $(create_temp_repodir) && $LAUNCH_PROJECT project" \
+    "cd $(create_temp_repodir) && $LAUNCH_PROJECT project-other"
+
+$START_AND_WAIT_SUBPROCESSES \
+    "tools/testing-scripts/test-sending-many-requests.sh frontend $NAMESPACE"
+
+$START_AND_WAIT_SUBPROCESSES \
+    "tools/testing-scripts/exercise-401-readiness-probes.sh" \
+    "tools/testing-scripts/exercise-402-readiness-probes.sh"
+
+$START_AND_WAIT_SUBPROCESSES \
+    "tools/testing-scripts/exercise-404-analysis-template.sh"

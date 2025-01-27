@@ -16,9 +16,4 @@ apply_secrets() {
     fi
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
 apply_secrets

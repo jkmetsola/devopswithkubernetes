@@ -40,12 +40,9 @@ launch_projects() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     trap echo_errors_on_exit1 EXIT
     NAMESPACE="$("$APPLY_NAMESPACE_TOOL" "$1" "$VERSION_BRANCH" "$ERROR_LOG")"
+    kubectl delete rollouts --all -n "$NAMESPACE"
     kubectl delete all --all -n "$NAMESPACE"
     launch_projects "$1"
 }

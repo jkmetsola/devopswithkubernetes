@@ -1,0 +1,33 @@
+---
+{{- with .Values}}
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: {{index .containerNames 0}}
+spec:
+  replicas: {{.replicas | default 2}}
+  selector:
+    matchLabels:
+      app: {{index .containerNames 0}}
+  strategy:
+    canary:
+        steps:
+        - setWeight: 50
+        - analysis:
+            templates:
+            - templateName: cpu-usage
+  template:
+    metadata:
+      labels:
+        app: {{index .containerNames 0}}
+    spec:
+      containers:
+          {{- include "container.base" $}}
+          ports:
+            - containerPort: {{.appPort}}
+          {{- include "probes.get" $}}
+          {{- include "security.context" $}}
+          {{- include "volumemounts.base" $}}
+      {{- include "volumes.base" $}}
+      terminationGracePeriodSeconds: 5
+{{- end}}

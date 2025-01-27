@@ -21,9 +21,4 @@ main() {
     "$IMPORT_K3D_IMAGE_TOOL" "$IMAGE_TAG"
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
 main
