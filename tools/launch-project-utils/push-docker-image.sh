@@ -10,8 +10,4 @@ docker_push_image() {
     fi
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
 docker_push_image

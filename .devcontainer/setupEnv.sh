@@ -44,6 +44,7 @@ define_global_vars(){
   export EXECUTE_WITH_USER=${WORKSPACE_FOLDER}/.devcontainer/init/executeWithUser.sh
   export GET_BASENAMES_TOOL=${WORKSPACE_FOLDER}/tools/launch-project-utils/get-basenames.sh
   export LAUNCH_PROJECT=${WORKSPACE_FOLDER}/tools/launch_project.sh
+  export LAUNCH_SINGLE_APP=${WORKSPACE_FOLDER}/tools/launch_single_app.sh
   export PACKAGES_DEVENV=${WORKSPACE_FOLDER}/${PACKAGES_DEVENV_FILE}
   export PACKAGES_DEVLINT=${WORKSPACE_FOLDER}/${PACKAGES_DEVLINT_FILE}
   export PROJECT_COMMON_FOLDER=${WORKSPACE_FOLDER}/project-common

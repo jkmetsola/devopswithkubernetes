@@ -21,7 +21,7 @@ start_subprocesses() {
         temp_logs="$(mktemp)"
         eval "$cmd > $temp_logs ${STDERR_TO_FILE:+2>&1}" &
         execution_pid=$!
-        echo "Process $cmd started with pid $execution_pid. Logs: $temp_logs"
+        echo "Process '$cmd' started with pid $execution_pid. Logs: $temp_logs"
         EXECUTION_PIDS+=("$execution_pid")
     done
 }
@@ -38,10 +38,6 @@ wait_subprocesses() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     trap error_exit_hook EXIT
     start_subprocesses
     wait_subprocesses

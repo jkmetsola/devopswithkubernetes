@@ -13,17 +13,13 @@ deploy_apps() {
         APP_DIR=$APPS_DIR/$app
         COMMANDS+=(
             "$BUILD_AND_APPLY_TOOL $APP_DIR $NAMESPACE && \
-            $WAIT_FOR_POD_TOOL $app $NAMESPACE"
+            timeout --verbose 90 $WAIT_FOR_POD_TOOL $app $NAMESPACE"
         )
     done
     $START_AND_WAIT_SUBPROCESSES "${COMMANDS[@]}"
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     deploy_apps
 }
 

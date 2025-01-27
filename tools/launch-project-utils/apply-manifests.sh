@@ -15,9 +15,4 @@ apply_manifests() {
         "${NAMESPACE}"
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
 apply_manifests

@@ -23,8 +23,4 @@ main() {
     fi
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
 main

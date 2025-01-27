@@ -16,9 +16,4 @@ main() {
     echo "$namespace"
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
-
 main

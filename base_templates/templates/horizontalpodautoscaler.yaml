@@ -7,10 +7,10 @@ metadata:
   name: {{index .containerNames 0}}-hpa
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
     name: {{index .containerNames 0}}
-  minReplicas: 1
+  minReplicas: 2
   maxReplicas: 6
   metrics:
     - type: Resource

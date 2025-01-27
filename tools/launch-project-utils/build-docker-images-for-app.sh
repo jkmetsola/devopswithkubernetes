@@ -23,8 +23,4 @@ build_images_for_app() {
     done
 }
 
-if [[ -n "${DEBUG:-}" ]]; then
-    set -x
-    export DEBUG
-fi
 build_images_for_app

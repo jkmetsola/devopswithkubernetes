@@ -10,10 +10,6 @@ copy_symlinks_in_folder() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     (cd "$1" && copy_symlinks_in_folder "$1")
 }
 

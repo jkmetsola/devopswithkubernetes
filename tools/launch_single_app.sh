@@ -19,16 +19,12 @@ echo_errors_on_exit1() {
 }
 
 main() {
-    if [[ -n "${DEBUG:-}" ]]; then
-        set -x
-        export DEBUG
-    fi
     app="$(basename "$APP_DIR")"
     project="$(basename "$(realpath "$APP_DIR/../..")")"
     NAMESPACE="$($APPLY_NAMESPACE_TOOL "$project" "$VERSION_BRANCH" "$ERROR_LOG")"
     kubectl delete --ignore-not-found --wait --namespace "$NAMESPACE" --now=true deployment "$app"
     $BUILD_AND_APPLY_TOOL "$APP_DIR" "$NAMESPACE"
-    $WAIT_FOR_POD_TOOL "$app" "$NAMESPACE"
+    timeout --verbose 90 "$WAIT_FOR_POD_TOOL" "$app" "$NAMESPACE"
 }
 
 trap echo_errors_on_exit1 EXIT
